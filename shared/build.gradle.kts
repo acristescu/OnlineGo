@@ -39,7 +39,13 @@ kotlin {
   listOf(
     iosArm64() to EstimatorTarget("iphoneos", "arm64-apple-ios15.0"),
     iosSimulatorArm64() to EstimatorTarget("iphonesimulator", "arm64-apple-ios15.0-simulator"),
-  ).forEach { (target, estimatorTarget) -> target.estimatorInterop(estimatorTarget) }
+  ).forEach { (target, estimatorTarget) ->
+    target.estimatorInterop(estimatorTarget)
+    target.binaries.framework {
+      baseName = "Shared"
+      isStatic = true
+    }
+  }
 
   sourceSets {
     all {

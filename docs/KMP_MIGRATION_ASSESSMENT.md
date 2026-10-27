@@ -9,9 +9,10 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-4 are finished: fifty-five slices are done (section 6). Phases 0-2 have
-shipped in a release; Phases 3 and 4 have not, and several slices still need on-device checks (
-section 1.2).
+**Status.** Phases 0-4 are finished: fifty-five slices are done (section 6), and all of them have
+shipped - `origin/release` and the `beta_b1064` tag both point at the commit with the last Phase 4
+slice (6.55). Several slices still need on-device checks (section 1.2), which now applies to a
+build already in users' hands rather than one still pending.
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
@@ -28,11 +29,16 @@ My Games tab with new challenges and What's new (6.45), the game screen (6.46), 
 (6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
 the Stats screen (6.50), Settings with the language setting (6.51), Supporter on a billing
 contract (6.52), Onboarding (6.53), the navigation host (6.54), and the app shell's theme, session
-and start-up logic (6.55). `:app` is now only the Android shell. Phase 5 has not started.
+and start-up logic (6.55). `:app` is now only the Android shell. Phase 5 has started: `iosApp/` runs
+the shared UI in the
+Simulator (6.57), with the platform bindings still stubbed. `docs/IOS_DEVELOPMENT.md` covers
+building and running it.
 
 Earlier, longer versions of this document:
-`git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
-`git show acedf6a:docs/KMP_MIGRATION_ASSESSMENT.md` (full write-ups of slices 6.1-6.15).
+`git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment),
+`git show acedf6a:docs/KMP_MIGRATION_ASSESSMENT.md` (full write-ups of slices 6.1-6.15), and
+`git show 9cf6cb29:docs/KMP_MIGRATION_ASSESSMENT.md` (full slice-by-slice write-ups of 6.1-6.56,
+before section 6 was condensed down to what's still load-bearing).
 
 ---
 
@@ -86,9 +92,12 @@ dark), a link opening YouTube, and the bottom bar. After 6.51: changing the lang
 13+ and below 13 (the recreate from `MainActivity`), the system per-app language on 13+ showing
 in Settings, the notifications row, the translation-guide and privacy links, the build version,
 the review-prompt diagnostic, a test notification, and logout, delete account and the avatar.
-After 6.52: a failed billing query showing as a snackbar on Supporter. After 6.53: the normal
-onboarding flow (info pages, back, password login and sign-up, wrong credentials, staying
-offline, the notification permission page, login and sign-up from the Play tab). After 6.54:
+After 6.52: a failed billing query showing as a snackbar on Supporter, and, on a production
+build, tiers and prices loading, the slider and subscribe button, the billing sheet, an upgrade
+or downgrade from an active subscription, and the manage-subscription link - all fine. After
+6.53: the normal onboarding flow (info pages, back, password login and sign-up, wrong
+credentials, staying offline, the notification permission page, login and sign-up from the Play
+tab), and, on a release build, Google sign-in itself - fine. After 6.54:
 every tab and back from every screen, the bottom bar keeping each tab's state, the Stats login
 sheet when logged out, opening a game from a notification with the app closed and in the
 background, backing out of onboarding on a first start closing the app, and the review-prompt and
@@ -112,22 +121,16 @@ Still owed - unit tests cannot reach these:
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
 - [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
   `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
-- [ ] **Supporter** (6.52), on a production build (billing does not work on debug builds): tiers
-  and prices load, the slider and the subscribe button, the billing sheet opens, an upgrade or
-  downgrade from an active subscription, and the manage-subscription link. The billing flow now
-  comes from `MainActivity` (6.54).
 - [ ] **Notifications suppressed in the foreground** (6.55): `isInForeground` is still set by
   `MainActivity`, but the ViewModel's resume/pause moved to `OnlineGoRoot`.
-- [ ] **Google sign-in** (6.53), on a release build (it does not work on debug builds): signing
-  in, and a failure showing as a snackbar. Test together with Supporter.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                      |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), Google sign-in, which reports "cancelled" for now (6.53), and the shell: host `OnlineGoRoot` in a `ComposeUIViewController`, call `prewarmApp` after `initKoin()`, and set the status-bar style (6.55). | done                          |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                                                                                                                                                            | done                          |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                      |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app (the shell passes no-op `Analytics`, `AppDataEraser` and `GameNotificationCanceller` to `initKoin()` since 6.57): real versions of those three, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                                            | done                          |
+| **5 - iOS app**                    | Shell done (6.57). Left: notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 4-8 weeks, excluding local AI |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -142,7 +145,7 @@ for writing the code.
 :shared    KMP library - model, logic, network, database, data, and (from phase 4) UI
 :app       Android application - MainActivity, notifications, WorkManager, Play Billing,
            Play Review, Google sign-in
-iosApp/    Xcode project - SwiftUI shell, BGTaskScheduler, StoreKit, UNUserNotificationCenter
+iosApp/    Xcode project - UIKit shell, BGTaskScheduler, StoreKit, UNUserNotificationCenter
 ```
 
 Layering inside `:shared` lives in package names; `commonMain` / `androidMain` / `iosMain` do the
@@ -256,1099 +259,216 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 
 ---
 
-## 6. Done - what is still load-bearing
-
-Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 201: 143 in `:shared` host tests (127 of them in `commonTest`, which also run on the iOS
-simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
-
-### 6.1 Moshi to kotlinx.serialization
-
-- One `appJson` (`utils/AppJson.kt`); each flag reproduces a Moshi behaviour. With
-  `explicitNulls = false` an explicit `null` stays `null` rather than taking the default
-  (`NullableDefaultsTest`).
-- **`isLenient` does not cover numbers.** OGS sends `99999999.0` for an `Int?`.
-  `LenientIntSerializer` / `LenientLongSerializer` accept exactly-integral floats and are applied
-  per file through `@file:UseSerializers` - a new DTO file without it loses that leniency.
-- `AnySerializer` reproduces Moshi's runtime types (`Double`, `LinkedHashMap`) because call sites
-  cast to them. `OGSClock.receivedAt` and `AiGameState.chatText` are `@Transient`.
-- The Room version was **deliberately left at 20**, so a stale `MoveTree` blob throws visibly
-  instead of being wiped.
-
-### 6.2 jsoup
-
-`AnnotatedString.fromHtml()` at the render site in `TsumegoUI`; descriptions keep formatting and
-links. It is still Android-only in Compose Multiplatform 1.13, so it is behind
-`htmlToAnnotatedString` since 6.43.
-
-### 6.3 Coil 2 to Coil 3
-
-- Coil 3.6.3 forced compileSdk 37 and Compose 1.12 (3.4.0 would not have); `targetSdk` is 36.
-- `rememberAsyncImagePainter` defaults to `Size.ORIGINAL`, so those sites use `AsyncImage`. The
-  regression would be silent memory use.
-- `processGravatarURL` rounds up to the CDN's 64/128/256/512 buckets (it always asked for 512).
-
-### 6.4 Retrofit to Ktorfit
-
-Traps, all found at runtime: `baseUrl` needs a trailing `/` and paths must not start with one;
-`@Body` sets no `Content-Type` (`defaultRequest` fixes it); a `%` in a path crashes KSP, so the
-Google OAuth constants are `@Query` defaults; both OkHttp and Ktor have `followRedirects = false`;
-`expectSuccess` throws on 3xx, so the Google handshake opts out. Errors surface as
-`OGSApiException`, with the body captured eagerly because catch sites are not `suspend`.
-
-### 6.5 PersistentCookieJar to `OGSCookieStore`
-
-- SharedPreferences, not DataStore, because `isLoggedIn()` is synchronous on cold start; hidden
-  behind `SessionCookiePersistence`.
-- **Only `csrftoken` and `sessionid`, only for the OGS host** - a trust boundary. If OGS needs a
-  third cookie, login breaks with no obvious cause: look at `KEPT_COOKIES`.
-- The legacy import decodes a Java-serialized blob: the shim must keep `serialVersionUID` and the
-  simple class name `SerializableCookie`. The old file is also the downgrade path; it stays until
-  pre-6.5 installs are gone (1.1).
-
-### 6.6 Logging to Kermit
-
-`CrashlyticsBreadcrumbWriter` forwards Info+ as breadcrumbs and never records non-fatals
-(`kermit-crashlytics` was rejected for that reason). Logcat is debug-only. Verbose/Debug use the
-lambda overload, so release never builds those strings.
-
-### 6.7 `java.time` to `kotlin.time` + kotlinx-datetime
-
-- Stdlib `Instant` / `Clock`; kotlinx-datetime 0.8.0 for zones and formatting. Room still stores
-  epoch millis. `OGSDateTimeTest` uses `java.time` as an oracle.
-- **Desugaring stays**: kotlinx-datetime needs `java.time` below API 26.
-- Fixed: the stats chart treated local time as UTC. Changed: the chart tooltip date uses
-  `DateUtils`, because kotlinx-datetime has English month names only.
-
-### 6.8 Constructor injection
-
-`OnlineGoApplication.instance` is gone. The remaining global lookups are deliberate: lazy
-injection to break cycles in `OGSWebSocketService` and `UserSessionRepository`, the two workers
-(no `WorkerFactory`), `GameConnection`, and `Globals1.kt`'s `ClockDriftRepository`.
-**`GlobalContext` is JVM-only**; common code uses `KoinPlatform.getKoin()`, the same context on
-Android (6.29).
-
-### 6.9 Firebase Analytics behind `Analytics`
-
-`Analytics` is a common interface (`commonMain` `utils/Analytics.kt`); `FirebaseAppAnalytics` in
-`androidMain` is the only Firebase Analytics importer; `androidPlatformModule` binds it as
-`single<Analytics>`. Parameters are a `Map<String, String?>`; event names are unchanged. iOS
-registers a Swift implementation with the iOS Koin graph.
-
-### 6.10 Firebase Crashlytics behind `CrashReporter`
-
-- `expect object CrashReporter` in `commonMain` `utils/CrashReporter.kt`; the Android `actual`
-  (`CrashReporter.android.kt`) is the only `FirebaseCrashlytics` importer. Global on purpose:
-  `BoardComposable`'s draw code and `TextResource.resolve()` cannot take constructor parameters.
-- **Behaviour change:** all reports go through the network-error filter, so cancellation and
-  network errors are no longer reported and HTTP 5xx is wrapped in `ServerException`.
-- The filter is the common `reportableException()`, pinned by `ReportableExceptionTest`; only
-  `isPlatformNetworkError()` is per platform (`java.net` and the cancelled Google sign-in on
-  Android, `AndroidNetworkErrorTest`). `OGSApiException` moved to `commonMain` with it.
-- **The iOS `actual` is still a placeholder for reporting:** it logs reportable exceptions through
-  Kermit and drops breadcrumbs, user id and keys. Its `isPlatformNetworkError()` covers the Darwin
-  engine's and Ktor's errors since 6.32.
-
-### 6.11 Layering
-
-Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose UI or `ui`.
-`BoardTheme`, `AppTheme`, `AppLanguage` and `TutorialIcon` carry no resource ids; their
-presentation lives in exhaustive `when`s next to the UI (`BoardThemeStyle.kt`, `SettingsUI.kt`,
-`LearnUI.kt`), so a new enum entry does not compile without its resources. Persisted forms are
-unchanged. Still Android-bound in `data`: `android.os.Build` in `HTTPConnectionFactory`, which is
-platform code by design.
-
-### 6.12 `Globals.kt` split
-
-`utils/Globals.kt` imports nothing Android-only. `timeControlDescription` moved to
-`ui/screens/game/TimeControlDescription.kt`. `Pattern` became `Regex`, pinned by
-`ProcessGravatarURLTest`. One JVM call is left: `System.currentTimeMillis()` in
-`timeLeftForCurrentPlayer`.
-
-### 6.13 JVM collections, atomics, `UUID` and `Locale`
-
-- `kotlin.concurrent.atomics` is experimental in Kotlin 2.3; the opt-in is module-wide.
-- `OGSWebSocketService.eventListeners` is copy-on-write over persistent collections; a listener
-  removed mid-dispatch can still receive that one event.
-- `TsumegoState.nodeStack` is an immutable `List`. `AppLanguage` compares language subtags as
-  strings (`AppLanguageTest`).
-
-### 6.14 Websocket from OkHttp to Ktor
-
-- Shares the REST `HttpClient` with the `WebSockets` plugin; no cookies reach it (host-only, 6.5).
-- **The plugin's `pingInterval` is ignored by the OkHttp engine.** The 15 s ping is on the shared
-  `OkHttpClient`, so REST HTTP/2 connections are pinged too. Darwin takes it from the plugin
-  (`pingIntervalMillis` in `sharedModule`, 6.32).
-- Outbound messages go through a per-connection `Channel(UNLIMITED)`; messages emitted during the
-  handshake are queued. **`disconnect()` closes the queue rather than cancelling**, so `cleanup()`
-  messages drain before the close frame.
-- A bad incoming payload is reported and skipped instead of dropping the socket.
-- **CIO was rejected** as the Android engine: HTTP/1.1 only, its own TLS stack, worse recovery on
-  network switches, no DNS hook for the emulator, and OkHttp stays in the APK through Coil anyway.
-
-### 6.15 JVM threading primitives in `data`
-
-- `OGSWebSocketService` and `GameConnection` share a coroutine `Mutex`. Every former `runBlocking`
-  waited on `loginStatus.first()`, which can really wait at cold start - do not swap it for
-  `replayCache`.
-- **Ref-counting lives in the service.** The old lock was re-entered by the same thread and a
-  `Mutex` would deadlock there. `GameConnection.close()` is asynchronous: it launches `release()` on
-  `applicationScope`.
-- `ActiveGamesRepository` uses `AtomicReference`s to persistent collections;
-  `FinishedGamesRepository`'s in-flight flag is an `AtomicBoolean`. `model/local/Clock.kt` spells
-  out `kotlin.time.Clock` because its own class has the same name.
-
-### 6.16 Clock text localized
-
-- `computeTimeLeft` returns `PlayerClock(timeLeft, period)`, numbers only; `period` is a
-  `ClockPeriod` (`Canadian`, `ByoYomi`, `Fischer`). `timeLeft == Long.MAX_VALUE` means no time
-  limit and renders as `∞`.
-- `clockFace(millis)` holds the rounding and bucketing (days / hours / minutes / tenths), pinned by
-  `ClockFaceTest`. `ui/composables/ClockText.kt` formats it from the `clock_*` resources, with a
-  plural for days. `String.format` is gone.
-- `GameViewModel.TimerDetails` carries `PlayerClock`s and start-timer millis; the "to make first
-  move" status is built in `GameUI` and still ranks below every other status.
-- **Behaviour changes:** an expired clock shows `0.0s` instead of `0.0`, and decimals follow the
-  locale (`1,5s` in German).
-- `formatDecimal` (clock tenths, AI percentages, puzzle percentages and solve rates) is in
-  `commonMain`
-  (`LocalizedNumbers.kt`) since 6.42: rounding and digits are common code, pinned by
-  `FormatDecimalTest`, and only the decimal separator is platform code (`decimalSeparator()`:
-  `DecimalFormatSymbols` for the configuration locale on Android, `NSLocale` on iOS). **Digits are
-  always Latin**, like every integer the app prints; a device in a locale with its own digits (
-  Arabic)
-  used to get them in these decimals only.
-
-### 6.17 `RulesManager` thread checks
-
-The three `Thread.currentThread()` checks only reported to Crashlytics and are deleted.
-`RulesManager` is in `commonMain` since 6.24.
-
-### 6.18 Dead weight
-
-- Deleted: `viewBinding`, the `fileTree("libs")` dependency, `res/anim/`, both unused
-  `*_PERIOD_MINUTES` constants (the `*_WORK_NAME` ones stay - they cancel work old installs
-  scheduled), and `FacebookLoginCallbackActivity` with its manifest entry, its translucent theme and
-  the runtime disable in `MainActivity`.
-- `rang.hpp` was included through `log.h`, whose only use was a debug block in `Goban.cpp` that the
-  JNI binding never enables (`debug = false`). The block and both headers are gone. This is the one
-  edit to the upstream estimator code.
-- `GamePresenterTest` became `utils/ClockFaceTest.kt` and `data/model/ogs/UserDecodingTest.kt`.
-
-### 6.19 Type-safe navigation
-
-- `ui/screens/main/Route.kt` is a `@Serializable sealed interface`. Each `@SerialName` is the old
-  route string and each property name is the old argument key, so ViewModels still read
-  `SavedStateHandle` by key, unchanged.
-- **Route patterns are the Firebase `screen_view` names** (`analytics.logScreenView` logs
-  `destination.route`) and the deep-link shape. Renaming a `@SerialName` or a route property changes
-  both. Arguments without a default become path segments; those with a default become query
-  parameters.
-- Unchanged: every tab, `game/{gameId}/{gameWidth}/{gameHeight}` and its
-  `sente://game/...` deep link (`navDeepLink<Route.Game>(basePath = "sente://game")`), `tutorial`,
-  `tsumego`. Changed: `onboarding?initialPage={initialPage}` (was `{initialPageArg}`) and
-  `otherPlayerStats/{playerId}`, now a `Long` path argument (nothing navigates there today).
-- The bottom-bar tab list is the single source for both visibility and selection.
-- R8 keeps the route serializers (checked in `mapping.txt`), but a release build has not run on a
-  device yet (1.2).
-
-### 6.20 `ScrollableDropDownMenu` on the standard `Popup`
-
-- The puzzle picker (`TsumegoUI`) keeps its own menu because it must be lazy: each row calls
-  `renderCollectionPuzzle` when it scrolls into view. Material3 1.4's `ExposedDropdownMenu` still
-  lays out a scrolling `Column`, so it would render every puzzle in the collection on open.
-- The ~370 LOC copy of Compose's Android popup window (`WindowManager`, `MotionEvent`, internal
-  Compose resource ids, `UUID`) is replaced by `Popup` with the existing position provider. The
-  file has no Android imports and is ready for `commonMain`.
-- `PopupProperties(focusable = true)`: outside taps, including on the field, only close the menu.
-  The old popup let them fall through to the screen underneath; letting them through would make a
-  tap on the field close the menu and reopen it. The anchor is now `PrimaryNotEditable` (the field
-  is read-only).
-
-### 6.21 Nullable DTO properties default to `null`
-
-Every nullable constructor property of a `@Serializable` class now declares `= null` (61 of them;
-the earlier count of 129 predates later edits). Decoding and encoding are unchanged: with
-`explicitNulls = false` an absent key was already `null` and nulls are still omitted. The flag stays
-as the safety net for a new property added without a default, pinned in `NullableDefaultsTest` by a
-test-local class.
-
-### 6.22 `:shared` extracted
-
-- A library at `shared/` holds `data/**`, `gamelogic/**`, `usecases/**` and the six `utils` files
-  they need (`Globals`, `Globals1`, `AppJson`, `PersistenceManager`, `CrashReporter`,
-  `Analytics`), plus the Room schemas. The estimator's C++ moved to `:app` in 6.23 and back in 6.26.
-  Packages are unchanged, so JNI symbol names, serial names and the
-  `-keep class io.zenandroid.onlinego.data.**` rule still match. No dependency cycle surfaced.
-- **`:shared` applies the Compose compiler plugin** though it has no composables. Without it the
-  model classes compile as external and unstable: six more unstable parameters in the app's
-  compose report (`Challenge`, `Player`, `Tutorial`, ...). Strong skipping hides this from the
-  skippable count, so compare `unstable` parameters in `app_release-composables.txt`, not
-  skippable totals. `stability_config.conf`'s `data.*` matches the `data` package only.
-- **Firebase Analytics and Crashlytics are dependencies of `:shared`** (`androidMain`) until
-  Phase 3 does 6.9 and 6.10. `ApiException` arrives transitively.
-- `BASE_URL` was a build field for a fixed value; it is now `const val OGS_BASE_URL` in
-  `OGSHttpClient.kt`.
-- `tutorials.json` stays in the app's assets: its keys are app string resources, and
-  `TutorialsJsonParsingTest` stays with it.
-- Kotlin does not smart-cast a property declared in another module; nine app sites now read the
-  model property once instead of null-checking it and reading it again.
-- CI: Bitrise runs the `:shared` tests in their own step (6.23); without it the 75 moved tests
-  would silently stop running. The release APK matched the pre-move build apart from dex size
-  (-116 bytes).
-
-### 6.23 `:shared` on the KMP plugin
-
-- `com.android.kotlin.multiplatform.library`, not `com.android.library` + KMP: that combination is
-  deprecated in AGP 9 and removed in AGP 10. Targets: Android, `iosArm64`, `iosSimulatorArm64`.
-- **The plugin has no `externalNativeBuild` and no `BuildConfig`.** `CMakeLists.txt` and the JNI
-  glue live in `:app`; JNI symbols follow the Kotlin class, not the module, so
-  `System.loadLibrary` in `:shared` finds the `.so` in the APK. `HTTPConnectionFactory` takes
-  `logBodies`, which the app passes to `androidPlatformModule` from its `BuildConfig.DEBUG`.
-- Source sets: `androidMain`, `androidHostTest`, `commonMain`, `commonTest`. Host tests also run
-  `commonTest`. The task is `:shared:testAndroidHostTest`; Bitrise runs it as a `script` step,
-  since `android-unit-test` looks for `testDebugUnitTest`.
-- `kotlin.native.ignoreDisabledTargets=true`: the Linux Bitrise stack cannot build Apple targets
-  and skips them.
-- No core library desugaring in the library: the app's L8 desugars everything it packages, and host
-  tests run on a JDK with `java.time`.
-- The release APK's `.so` files and the compose stability report (246 composables, 6 unstable
-  parameters, both from a full recompile) matched the pre-move build. Incremental builds write
-  partial compose reports - compare only after `compileReleaseKotlin --rerun`.
-
-### 6.24 Model and logic in `commonMain`
-
-- `data/model/**`, `gamelogic/**`, the serializers (`AnySerializer`, `LenientNumberSerializers`,
-  `OGSBooleanSerializer`, `OGSInstantSerializer`, `JsonValues`), `AppJson` and `Globals` compile
-  for Android and iOS. Packages are unchanged.
-- `GameConnection.kt`'s DTOs (`OGSClock`, `TimeControl`, `Players`, ...) are in
-  `GameConnectionModels.kt`, same package; the connection class stays in `androidMain`.
-  `currentClockMillis` moved to `Globals1.kt`, next to the drift-aware `computeTimeLeft` it calls.
-- **`@Transient` without an import is `kotlin.jvm.Transient`**, which kotlinx.serialization ignores:
-  `JosekiPosition.labels` was always decoded. Two no-op annotations were deleted rather than
-  "fixed" to `kotlinx.serialization.Transient`, which would have changed decoding.
-- **Renaming or moving the JNI class breaks scoring silently**: `UnsatisfiedLinkError` is caught
-  and only logged. R8 keeps the name through the default native-method rule (checked with
-  `dexdump`). The class is `NativeEstimator` since 6.26.
-- `RulesManager`'s position cache is `androidx.collection.LruCache`. The old
-  `androidx.core.util.lruCache` was an `android.util.LruCache` stub in host tests, so tests now
-  exercise a real cache.
-- Kotlin/Native rejects commas in backtick test names; six were reworded.
-- `ChallengeParams` lost `@Keep`; `-keep class io.zenandroid.onlinego.data.**` covers it.
-
-### 6.25 Room database in `commonMain`
-
-- `Database`, `GameDao`, `PuzzleDao` and `DbTypeConverters` are in `commonMain`, same package.
-  Version 20 and the schema are unchanged: `schemas/.../20.json` came out byte-identical, so the
-  identity hash matches and an older APK still opens the file.
-- **Android keeps the framework SQLite** (no `setDriver`); `androidPlatformModule` supplies the
-  builder and `sharedModule` adds `fallbackToDestructiveMigration` and builds it. iOS gets
-  `BundledSQLiteDriver` (`iosMain` only); its builder and path are in `iosPlatformModule` (6.32).
-- Every DAO function is `suspend` or returns `Flow`, the `@Transaction` bodies included; native
-  targets reject blocking DAOs. Callers were already in coroutines, so only `suspend` spread to
-  private handlers in four repositories. DAO calls now hop to Room's executor.
-- **`Database` in `Database.kt` resolves to the `androidx.room.Database` import**, not the class:
-  the `expect object DatabaseConstructor` spells the class out in full. Otherwise KSP fails with
-  "must implement a single interface of type RoomDatabaseConstructor".
-- A suspend function reference does not fit `flatMap`; `insertAllGames` uses a lambda.
-- `DbTypeConverters` is a plain class with member converters (no companion, no `@JvmStatic`).
-  `@Suppress(RoomWarnings.QUERY_MISMATCH)` is honoured like `@SuppressWarnings` was.
-- The Room Gradle plugin owns `schemas/`; KSP runs for Android and both iOS targets. `room-ktx`
-  (empty since Room 2.7) and the unused `room` bundle are gone.
-- `iosTest/.../DatabaseTest.kt` is the first DAO test: transactions, the `insertAllGames` merge
-  and the `MoveTree` converter, on an in-memory bundled database. The Linux Bitrise stack skips it
-  (6.23). The merge keeps only players, moves and undo: the incoming clock and phase win.
-
-### 6.26 Score estimator on iOS
-
-- The C++ is in `shared/src/nativeInterop/cpp`, one copy for both platforms. It matches upstream
-  `online-go/score-estimator` master (`87c8f91`) apart from the 6.18 debug-block deletion; later
-  upstream commits are a version bump and Python bindings.
-- `estimator.cpp` is the C entry point, `estimator_estimate`, in place on the board array like
-  upstream's `jsbindings.cc`. It owns the `EMSCRIPTEN` and `USE_THREADS` defines. Android's CMake
-  builds it with `app/src/main/cpp/jnibindings.cpp`, now a thin JNI wrapper.
-- `ScoreEstimator.determineTerritory()` is in `commonMain` and calls
-  `internal expect object NativeEstimator`. The Android `actual` keeps `loadLibrary` and the
-  `external fun`; **the JNI symbol is now `Java_..._gamelogic_NativeEstimator_estimate`**. The
-  iOS `actual` pins the array and calls the cinterop binding.
-- `CompileEstimator` in `shared/build.gradle.kts` runs `xcrun clang++` and `libtool` per iOS
-  target (deployment target 15.0, Kotlin/Native's minimum); `estimator.def` embeds the
-  `libestimator.a` in the cinterop klib and links `-lc++`. Only the iOS cinterop tasks depend on
-  it, so the Linux stack never runs `xcrun`.
-- `iosTest/.../ScoreEstimatorTest.kt` runs the real C++ on 9x9 and 19x19 on `Dispatchers.Default`,
-  whose 512 KB iOS stacks are the tightest the estimator's stack-allocated grids will see. It
-  cannot live in `commonTest`: host tests run on a JVM without the `.so`.
-
-### 6.27 HTTP client in `commonMain`
-
-- `OGSHttpClient` (`configureOGSClient`), `OGSRestAPI`, `Glicko2HistoryConverter` and
-  `OGSCookieStore` are in `commonMain`, same package; Ktorfit and the Ktor serialization artifacts
-  are `commonMain` dependencies. Ktorfit generates `_OGSRestAPIImpl` once, into
-  `metadata/commonMain`, and every target compiles it.
-- `OGSCookieStore` reads the clock through `kotlin.time.Clock` and uses
-  `kotlin.concurrent.Volatile`.
-- **Still in `androidMain`:** `HTTPConnectionFactory` (OkHttp, the emulator DNS hook, the 15 s
-  ping), `SharedPrefsCookiePersistence` and `LegacyCookieImport`. The Darwin engine and its
-  cases of `isPlatformNetworkError()` (6.10) came in 6.32.
-- **The services waited for the session cluster** (done in 6.29). `OGSRestService` needs
-  `UserSessionRepository`
-  and `SettingsRepository`, `OGSWebSocketService` needs `UserSessionRepository` and
-  `SocketDebugRepository`, and `GameConnection` needs `ChatRepository`. `UserSessionRepository` in
-  turn needs `PersistenceManager` (SharedPreferences) and `ActivityManager`, so storage has to move
-  first.
-- Six tests moved to `commonTest` with `ktor-client-mock`, so Google sign-in, the CSRF header,
-  cookie capture and the error mapping now also run on the iOS simulator. `OGSEngineBridgeTest`
-  (OkHttp), `LegacyCookieImportTest` and `OGSDateTimeTest` (`java.time` oracle) stay host-only. Two
-  test names lost a comma for Kotlin/Native.
-
-### 6.28 Storage in `commonMain`
-
-- `SettingsRepository` and `ReviewPromptRepository` are in `commonMain` and take a
-  `DataStore<Preferences>`. The Android `preferencesDataStore` delegates stay in `androidMain`
-  (`PreferenceDataStores.kt`), with the `SharedPreferencesMigration` from
-  `io.zenandroid.onlinego_preferences`, so file names and migration are unchanged. iOS will build
-  them with `PreferenceDataStoreFactory.createWithPath`, as `SettingsRepositoryTest` does on an
-  okio temp file.
-- **`PersistenceManager` stays synchronous and on the same SharedPreferences file.** It is in
-  `commonMain` over a four-method `KeyValueStore`; `SharedPreferencesKeyValueStore` opens `login`,
-  named in `androidPlatformModule`. A move to DataStore would have needed a migration that drops the
-  old keys,
-  taking the downgrade path and, if it failed, the session with it. `PersistenceManagerTest` pins
-  the key names. The UIConfig and its timestamp are now two writes instead of one edit; a crash
-  between them only forces a UIConfig refresh.
-- `ReviewPromptRepository` lost its unused `UserSessionRepository` parameter, referenced only in a
-  commented-out debug check.
-- The iOS `KeyValueStore` and `SessionCookiePersistence` are on `NSUserDefaults` (6.32).
-
-### 6.29 Session cluster in `commonMain`
-
-- `UserSessionRepository`, `OGSRestService`, `OGSWebSocketService`, `GameConnection`,
-  `ChatRepository`, `SocketDebugRepository` and `SocketConnectedRepository` moved together: they
-  form one dependency cycle. `koin-core` is a `commonMain` dependency.
-- **`UserSessionRepository` takes an `AppDataEraser` instead of a `Context`** (a lambda until
-  6.31). The Android one calls `ActivityManager.clearApplicationUserData()`, which wipes everything
-  and kills the process; iOS has no equivalent and must clear its own stores.
-- `GlobalContext.get()` became `KoinPlatform.getKoin()` in the three lazy lookups (6.8).
-- The `ebi` device id uses `Random.nextDouble()` instead of `Math.random()`; on the JVM the string
-  has the same `0.xxx` shape it takes the digits from.
-
-### 6.30 Remaining repositories in `commonMain`
-
-- The other ten repositories, `GetUserStatsUseCase` and `Globals1` moved; `androidMain` now holds
-  only `HTTPConnectionFactory`, the cookie persistence and legacy import, the DataStore delegates,
-  `SharedPreferencesKeyValueStore`, `FirebaseAppAnalytics`, the Crashlytics `CrashReporter` and
-  `NativeEstimator`.
-- `retryOnIOException` catches `kotlinx.io.IOException`, a typealias of `java.io.IOException` on
-  the JVM, so it retries the same OkHttp failures.
-- **`TutorialsRepository` takes a `TutorialsSource`** (a lambda until 6.31); the app's one reads
-  `tutorials.json` from its assets and the repository decodes it with `decodeFromString`. Phase 4
-  can swap it for a Compose resource read.
-- **Joseki label extraction** (`extractLabelsFromDescription`) is a top-level `internal` function
-  on `Regex.replace` instead of `java.util.regex`'s `appendReplacement`, pinned by
-  `JosekiLabelsTest`. A `$` or `\` label is now inserted literally instead of being read as a
-  group reference.
-- **Known bug, unchanged:** `<(.):([A-H]|[J-T]\d{1,2})>` groups as "one letter A-H, or J-T with
-  digits", so marks in columns A-H (`<A:D4>`) never match and stay as raw text. The intended
-  pattern is `[A-HJ-T]\d{1,2}`; fixing it changes what the Joseki explorer shows.
-
-### 6.31 Koin modules follow the layers
-
-- **`sharedModule`** (`commonMain` `di/SharedModule.kt`): `appJson`, the cookie store, the
-  `HttpClient` (`HttpClient(engine)` plus `configureOGSClient` and `WebSockets`), Ktorfit, both
-  services, the database and DAOs, every repository, `PersistenceManager` and the use case.
-- **The platform contract** is what `sharedModule` gets but does not define: an `HttpClientEngine`,
-  `SessionCookiePersistence`, `KeyValueStore`, the two `DataStore`s under `SETTINGS_DATA_STORE` and
-  `REVIEW_PROMPT_DATA_STORE`, a `RoomDatabase.Builder<Database>`, `Analytics`, `AppDataEraser`,
-  `TutorialsSource` and the application `CoroutineScope`. `iosTest/.../SharedModuleTest` starts
-  Koin with stubs for exactly that list and resolves every definition, so a definition added
-  without its platform binding fails there (checked by removing one).
-- **`androidPlatformModule(logHttpBodies)`** (`androidMain`): OkHttp through
-  `HTTPConnectionFactory`,
-  the SharedPreferences stores, the DataStore delegates, the Room builder, Firebase Analytics and
-  the `ActivityManager` eraser. It uses `get<Context>()`, so `:shared` needs no `koin-android`.
-- **`:app`'s `Modules.kt` is the composition root**: the application scope, `TutorialsSource`
-  (its asset), `AppLocaleManager`, notifications, `WhatsNewUtils`, KataGo, ViewModels, Play Store,
-  Espresso and the review prompt. `:app` no longer depends on Ktor or Ktorfit directly.
-- `AppDataEraser` and `TutorialsSource` are `fun interface`s because Koin cannot tell `() -> Unit`
-  bindings apart; the lambdas of 6.29 and 6.30 only worked because `Modules.kt` built those
-  repositories by hand.
-
-### 6.32 iOS platform module
-
-- `iosPlatformModule` (`iosMain` `di/IosPlatformModule.kt`) implements the 6.31 contract: the
-  Darwin engine, the `NSUserDefaults` stores, and both DataStores and the database in Application
-  Support (`settings.preferences_pb`, `review_prompt.preferences_pb`, `database.db`) on
-  `BundledSQLiteDriver`.
-- **`initKoin(analytics, appDataEraser, tutorialsSource)`** (`di/InitKoin.kt`) is the iOS
-  composition root and adds the application scope; `gameNotificationCanceller` joined in 6.46.
-  Swift implements the Kotlin interfaces;
-  until the iOS app exists, only `IosPlatformModuleTest` calls it.
-- `KeyValueStore` is `UserDefaultsKeyValueStore` over the suite `login`, like Android's prefs file.
-  **`getLong` reads `objectForKey`**: `integerForKey` returns 0 for a missing key, not the default.
-- `SessionCookiePersistence` is `KeyValueCookiePersistence` over the suite `ogs_session`: the whole
-  cookie map as one JSON string, so a save replaces the set in one write. Like SharedPreferences,
-  `NSUserDefaults` is sandbox-private but unencrypted and backed up; Keychain would be the
-  hardening.
-- **Redirects:** NSURLSession follows redirects on its own, but Ktor's `KtorNSURLSessionDelegate`
-  refuses them, so `followRedirects = false` holds and the Google handshake still sees the 3xx.
-- **Websocket ping:** the Darwin session is wrapped by the `WebSockets` plugin, whose pinger is off
-  by default. `sharedModule` sets `pingIntervalMillis = 15_000`; OkHttp ignores it in favour of its
-  engine's 15 s (6.14).
-- `isPlatformNetworkError()` on iOS: Ktor's socket and connect timeouts, and
-  `DarwinHttpRequestException` with a connectivity `NSURLErrorDomain` code or, from the websocket
-  path, a POSIX connection error (`IosNetworkErrorTest`).
-- **Kotlin/Native's standalone simulator test run fails every TLS handshake** (`-1202` for any
-  host), so real-network checks need a booted simulator: an init script that sets `device` and
-  `standalone = false` on `iosSimulatorArm64Test`. Checked that way with a throwaway test: a REST
-  GET decodes, a 301 surfaces as `OGSApiException`, and the websocket answers `net/ping` after 70 s
-  idle. The shared `HttpClient` has no base URL - Ktorfit supplies it - so raw calls need absolute
-  URLs.
-- An iOS `AppDataEraser` must clear the database, both DataStores and both defaults suites itself
-  (6.29).
-
-### 6.33 Toolchain for Compose Multiplatform
-
-- **Kotlin 2.4.21** (was 2.3.20). Kotlin 2.3.20-2.3.21 supports AGP only up to 9.0.0, so AGP 9.2.1
-  was outside the supported matrix; 2.4.20-2.4.21 covers AGP 8.5.2-9.3.1 and Gradle up to 9.7.0.
-  It is tested against Xcode 26.4; the local Xcode 27.0 builds and runs the simulator tests.
-- **AGP 9.3.3, Gradle 9.7.1** (were 9.2.1 and 9.4.1): the newest of each inside the 2.4.21 range
-  (patch releases past the listed 9.3.1 and 9.7.0). **AGP 9.3 refuses Gradle below 9.5**, and
-  **AGP 9.4 is outside the 2.4.21 range.** AGP 9.3 warns that six `android.*` options in
-  `gradle.properties` are deprecated; they go before AGP 10.
-- **KSP 2.3.12** (was 2.3.6). KSP2 versions are no longer tied to the Kotlin version. Ktorfit 2.7.5
-  infers its compiler plugin from the Kotlin version and needed no change.
-- **Compose BOM 2026.09.00** (Compose 1.12.1, was 1.12.0): the version CMP 1.12.2 is built on, so
-  Android keeps one Compose version when CMP arrives.
-- **Target: Compose Multiplatform 1.12.2** (moved to 1.13.0-alpha02 in 6.35), the latest stable.
-  1.13 is alpha and raises
-  `compileSdk` to 37.1 and `minSdk` to 24. CMP's runtime 1.12.2 needs only stdlib 2.2.20, and its
-  Android artifacts resolve to androidx Compose 1.12.1.
-- **Material3 is the trap:** CMP 1.12 ships `org.jetbrains.compose.material3` 1.12.0-alpha03, based
-  on Jetpack 1.5.0-alpha22. The stable choice is 1.9.0, which maps to Jetpack material3 1.4.0 -
-  what the app ships today.
-- The other CMP 1.12.2 libraries: Lifecycle 2.11.0, `org.jetbrains.androidx.navigation` 2.10.0-rc01
-  (latest stable 2.9.2; the app uses androidx 2.9.7), resources 1.12.2. Koin 4.2.2's
-  `koin-compose-viewmodel` needs Lifecycle 2.9.6+.
-  `org.jetbrains.compose.material:material-icons-extended`
-  stops at 1.7.3; 6.41 uses it anyway.
-- Libraries that pair with Kotlin 2.4 and CMP 1.12.2: kotlinx.serialization 1.11.0, Ktor 3.5.2,
-  Koin 4.2.2, Room 2.8.5, androidx Lifecycle 2.11.0, coroutines-test 1.11.0 (core already resolved
-  to 1.11.0). **sqlite-bundled stays 2.6.2**, the version Room 2.8.5 declares. Left for their own
-  slices: navigation (with the switch to the multiplatform artifact), kotlinx-collections-immutable
-  0.5, and the Android-only Firebase BOM 35, OkHttp 5.5, core-ktx 1.19 and WorkManager 2.12.
-- Checked: the release compose report is byte-identical (241 composables, 6 unstable parameters),
-  R8 keeps the serializers of all five route classes (the `data object` routes have none), and all
-  tests pass on Android and the iOS simulator. On a booted simulator, a Ktorfit call decodes, a 301
-  surfaces as `OGSApiException`, and the websocket answers `net/ping` after 70 s idle.
-
-### 6.34 Compose Multiplatform in `:shared`
-
-- `:shared` applies the `org.jetbrains.compose` 1.12.2 plugin and exposes CMP `runtime`, `ui`,
-  `foundation` and `material3` as `api` dependencies, replacing the androidx Compose BOM and
-  `runtime` in `commonMain`. Coordinates are written out in the catalog (`cmp-*`), not taken from
-  the plugin's `compose.*` accessors.
-- **Material3 is pinned to 1.9.0** (`composeMultiplatformMaterial3`), apart from the CMP version
-  (6.33). On Android every `androidx.compose` artifact and material3 1.4.0 resolve exactly as
-  before; only the `org.jetbrains.compose` wrapper modules, already pulled in transitively, moved
-  from 1.12.0 to 1.12.2.
-- `ExposedLazyDropdownMenu` (`ui/composables/ScrollableDropDownMenu.kt`) is the first composable in
-  `commonMain`, same package, so `TsumegoUI` is unchanged. It carries its `updateTransition`
-  deprecation warning with it.
-- **The compose report now spans two modules.** `:shared` writes none by default; pass an init
-  script that sets `composeCompiler.reportsDestination` for both, and compare the app and `:shared`
-  rows together. They matched the app's report before the move (246 rows, 6 unstable parameters,
-  none in `:shared`). The release APK came out the same size to the byte.
-- `iosTest/.../ExposedLazyDropdownMenuTest` renders the menu with `runComposeUiTest` on the
-  simulator: the first row shows, row 999 of 1,000 is never composed. It is the first Compose UI
-  test, and it proves material3 1.9.0 runs, not just links, against CMP 1.12.2 on iOS.
-
-### 6.35 Compose Multiplatform 1.13 alpha
-
-- **Why an alpha:** CMP 1.12.x resources have an Android ANR (`stringResource` blocks the main
-  thread on `Dispatchers.Default`, CMP-6615), a main-thread deadlock between blocking and suspend
-  reads, and a crash on plural rules for locales missing from its CLDR table. All three are fixed
-  only in 1.13.0-alpha01, and Android screens are about to read strings through CMP.
-- **The cost:** CMP 1.13.0-alpha02 is built on Jetpack Compose 1.13.0-alpha03, so every
-  `androidx.compose` artifact in the app resolves to that alpha. The Compose BOM stays at
-  2026.09.00; the atomic-group constraints pull the BOM-managed artifacts up with it. androidx
-  material3 stays 1.4.0 because `org.jetbrains.compose.material3` stays pinned at 1.9.0; the only
-  other change is `navigationevent` 1.0.0 to 1.1.0.
-- CMP 1.13 requires **`compileSdk` 37.1** (
-  `compileSdk { version = release(37) { minorApiLevel = 1 } }`
-  in both modules, values from the catalog) and **`minSdk` 24**, which drops Android 6.0.
-  `vectorDrawables.useSupportLibrary` went with it, as its comment asked.
-- Compose 1.13 makes `Paint.asFrameworkPaint()` an error; `BoardComposable`'s shadow paint uses
-  `Paint.nativePaint`.
-- Checked: compose report rows identical (app and `:shared`, 6 unstable parameters), no new
-  deprecation warnings, release build with R8, all tests on Android and the iOS simulator. The
-  release APK is 156 KB smaller.
-
-### 6.36 Strings as Compose Multiplatform resources
-
-- **One committed set of CMP-format strings** in `shared/src/commonMain/composeResources/values*/`,
-  read by Android and iOS. `:shared` sets `androidResources.enable = true` (without it the assets
-  are not packaged, CMP-9547), `publicResClass` and `packageOfResClass`. On Android the strings are
-  assets: `assets/composeResources/io.zenandroid.onlinego.resources/`.
-- **The one-off conversion** applied the processor's rules and Android's whitespace collapsing
-  (Crowdin had left raw line breaks in two translations, which Android renders as spaces). Checked
-  against `aapt2 dump`: all 6,228 strings, plural forms and array items in the 9 locales matched.
-- **Crowdin.** The integration and the file stay the same: `crowdin.yml` keeps the Crowdin path
-  with `dest: /app/src/main/res/values/strings.xml`, so translations and approvals survive the
-  move. A Custom Post-Export Processor rewrites `\'`, `\"`, `%%` and a leading `\@`/`\?` in every
-  exported `strings.xml`; tested through the integration before the switch. **If the processor
-  stops running, the next Crowdin PR brings Android escapes that CMP shows literally.**
-  Every Crowdin language is synced. Android's `localeFilters` does not filter CMP assets and CMP
-  picks the language from the device locale, so a phone set to a partially translated language
-  (ru, zh, pl, ...) sees it with English for the missing strings - accepted, unlike before.
-- `app_name` is a separate Android `app_name.xml` and Crowdin file (the manifest launcher label).
-- **Android call sites:** `R.string` -> `Res.string` with one import per accessor (CMP accessors
-  are extension properties). `Int` string ids became `StringResource`; it is stable in the compose
-  report. `TimeControlDescription` and the stats chart tooltip are formatted in composition;
-  notifications, notification channels and What's new use the suspend `getString` /
-  `getPluralString` / `getStringArray`; tutorial names resolve through `Res.allStringResources`.
-- **Portuguese is enabled** (`AppLanguage.PORTUGUESE`, `locales_config.xml`, `localeFilters`),
-  credited in What's new.
-- **`dest:` in `crowdin.yml` does not work with the GitHub integration:** it deleted the Crowdin
-  file instead of keeping it. The file now lives at its real path; translations were re-imported
-  from the repo, so approvals have to be redone.
-- CMP resources render in screenshot tests and previews with AGP 9.3; no extra setup was needed.
-- `iosTest/.../StringResourcesTest` reads apostrophes, quotes, `\n`, a single `%`, plurals, the
-  What's new array and a tutorial key by name on the simulator.
-
-### 6.37 `BoardView` removed
-
-- Notification boards come from `renderBoard` (`ui/composables/BoardComposable.kt`): it draws into
-  an
-  `ImageBitmap` through `CanvasDrawScope`, with no composition. `Board` and `renderBoard` share
-  `DrawScope.drawBoard`. **`Board` reads its animation values inside the `Canvas` block** and passes
-  them in; reading them in the composable body would recompose on every animation frame.
-- **Stones are `BitmapPainter`s** rasterised from the vector drawables, because
-  `rememberVectorPainter` needs a composition and `VectorPainter`'s constructor is internal.
-  `renderBoard` is Android-only; it is in `:shared` `androidMain` since 6.40.
-- **Behaviour changes:** notifications use the board style from Settings (it was always light wood)
-  and the system's dark mode; the large icon is the 256dp bitmap scaled down instead of a second
-  drawing. On a 3x screen a 19x19 board has ~40 px cells, `drawStone`'s cutoff, so its stones are
-  flat circles.
-- `BoardView.unloadResources()` did nothing: the instance `texture` shadowed the companion's.
-  `mipmap/stone_*.png` and `gradient_shadow.xml` went with it.
-- **Forcing the sync worker:** `cmd jobscheduler run -f` starts the job, but WorkManager refuses
-  periodic work before its period ("executed before schedule") and re-enqueues it - wait for the due
-  run. On Android 17 the job is in a namespace:
-  `cmd jobscheduler run -f -n androidx.work.systemjobscheduler <package> <id>`. The worker also
-  skips while the app is in the foreground.
-
-### 6.38 Unused resources and dependencies
-
-- Deleted: 29 colors (light and night), 4 drawables, `selectable_primary.xml`, `dimens.xml`,
-  `values-w820dp/`, `integers.xml`. **Trust lint's `UnusedResources`, not grep:** several files
-  import `R.drawable` and write `drawable.ic_star`, and lint found two colors a scan missed.
-- `lifecycle-extensions` 2.2.0 was unused. **`firebase-messaging` was unused and is gone:** the app
-  no
-  longer registers with FCM. The merged manifest lost only the FCM receiver, service, registrars and
-  `c2dm` permission.
-- Lint still fails on two older errors: `FlowOperatorInvokedInComposition` at
-  `GameViewModel.kt:277`, and `MissingTranslation` for `app_name` in ko, it, vi and id since 6.36.
-
-### 6.39 UI drawables as Compose Multiplatform resources
-
-- 29 assets in `shared/src/commonMain/composeResources/drawable/`. A raster without a density
-  qualifier is mdpi in CMP as on Android; `placeholder.png` came from `mipmap-mdpi`.
-- **CMP's vector parser takes only literal `#` colors.** An `@color/` or `?attr/` reference builds
-  fine and throws when the image loads. `DrawableResourcesTest` (`iosTest`) decodes every drawable
-  and each dark twin; it fails on an `@color` reference (checked).
-- Three files have `drawable-dark/` twins with literal colors: `art_login_1` (the old `colorAccent`
-  values), `logo_ogs` and `ic_board_transparent`. The last two used `?attr/colorOnBackground` and
-  are
-  now Material 3's baseline `#1D1B20` / `#E6E0E9`, so they no longer pick up wallpaper colors.
-- **The dark qualifier follows the system, not the app's theme setting**, as Android resources did.
-  When the two differ the wrong twin shows. The Tsumego arrows were `Image`s and showed it, so they
-  are now `Icon`s tinted `colorScheme.secondary`, with no twin. The general fix (the app theme
-  setting
-  the configuration, e.g. `UiModeManager.setApplicationNightMode`) was left out.
-- Coil's `ImageRequest.placeholder(Int)` is Android-only: avatars pass `placeholder` and `error`
-  painters to `AsyncImage`. `fallback` defaults to `error` either way.
-- Drawable parameters are `DrawableResource`.
-
-### 6.40 The board in `commonMain`
-
-- `Board` and the drawing code are in `:shared` `commonMain` (`ui/composables/BoardComposable.kt`),
-  same package, with `BoardThemeStyle`, `ThemeSettings`, `PreloadedImages` and the two locals
-  (`ui/theme`). `ThemeSettings` and `PreloadedImages` moved from `ui.screens.main` to `ui.theme`.
-  `Board` lost `@ExperimentalComposeUiApi`.
-- **`renderBoard` is in `androidMain`** (`RenderBoard.kt`), so `drawBoard`, `doMeasurements` and
-  `Measurements` stay `internal`. It is `suspend` now: it reads the wood from CMP resources. It
-  still rasterises the stones from Android vectors, because a `VectorPainter` needs a composition;
-  **the two `ic_stone_*_svg.xml` exist twice**, in `composeResources/drawable/` and
-  `shared/src/androidMain/res/drawable/`. `BoardThemeStyle` lost its stone fields: every style used
-  the same two.
-- **Text is `TextMeasurer` + `drawText`**, measured with a 128-entry cache, and centred on its ink
-  bounds as before: `textInkBounds` is `Paint.getTextBounds` on Android (the old measurement) and
-  Skia's `Font.measureText` on iOS. Compose exposes no ink bounds; a first version centred on the
-  advance width and Roboto's cap height and was visibly off per glyph on a device. **The iOS
-  typeface must be the one Compose draws with:** `.AppleSystemUIFont`. Helvetica and Helvetica Neue
-  are 2 px off on some digits, and `matchFamilyStyle(null)` matches nothing, leaving empty bounds.
-  The glow is a `Shadow` with the old 8 px blur.
-- **The stone shadow is a radial gradient** in `Measurements` that reproduces Android's shadow layer
-  (sigma from the blur radius, a logistic fit of the Gaussian edge), so there is no `Paint` or
-  `Build` check. Pixel profiles match the old shadow to within 4 levels. **API 24-27 now gets the
-  same shadow** instead of the faint offset circle.
-- **Touch is `pointerInput`.** Only pressed pointers count, so mouse hover no longer hot-tracks;
-  `onTapUp` fires when the last pointer lifts. Every event is consumed, as `pointerInteropFilter`
-  did by returning `true`.
-- Background colours are literal `Color`s in `BoardThemeStyle`; the four `bg_*` colours are gone.
-  The wood JPEGs are in `drawable-xxxhdpi/` and the style previews in `drawable/`.
-- `loadPreloadedImages` decodes the wood with `decodeToImageBitmap`, which does not scale by
-  density as Android's `imageResource` did: the bitmap is the full 1400 px, ~3.4 MB more on an
-  xxhdpi phone. The preview theme uses CMP's `imageResource` / `vectorResource`.
-- **Since 6.45 the preload starts in `MainActivity.onCreate`**, on `Dispatchers.Default`, and writes
-  `preloadedImages` from the worker. It used to be a `LaunchedEffect`: it started during the first
-  composition and its result waited ~200 ms for the main thread, busy with the first frames, so a
-  cold start drew the boards without their background for a few frames. Measured on a Pixel 8
-  emulator: the work takes 20-50 ms; the images are now ready ~700 ms after process start, before
-  the first composition, which no longer draws a board without background (one in five runs still
-  did, on an emulator stall). Cold start to first frame (`am start -W`, median): 941 ms before 6.40,
-  895 ms before 6.45, 856 ms after, so no regression.
-- `iosTest/.../BoardTest` loads the images from resources, draws a position on the simulator, checks
-  a black and a white stone, and drags then lifts to check `onTapUp` gets the cell under the lift. A
-  second test finds the ink of seven labels in the captured image and requires each within 1.5 px of
-  its point.
-
-### 6.41 Material icons from the multiplatform artifact
-
-- `:shared` `commonMain` takes `org.jetbrains.compose.material:material-icons-extended` 1.7.3 as an
-  `api` dependency (`cmp-material-icons-extended`, its own version in the catalog); `:app` no
-  longer declares the androidx artifact. Call sites and imports are unchanged, and every icon stays
-  available.
-- **Vendoring was rejected** for now: the full set at hand beats 58 copied files. Revisit if a
-  Compose upgrade breaks the artifact or iOS debug link times hurt.
-- **The artifact is frozen**, like its androidx counterpart (1.7.8): no new icons on either
-  platform.
-  On Android it is a wrapper, so the APK resolves the same androidx 1.7.8 classes as before.
-- **It is compiled against Compose 1.7** and works on 1.13 only through binary compatibility.
-  `iosTest/.../MaterialIconsTest` draws a filled, an auto-mirrored and a rounded icon on the
-  simulator; rerun it after every Compose upgrade.
-- Release iOS builds keep only the icons in use (Kotlin/Native dead-code elimination); debug builds
-  link the whole set.
-
-### 6.42 ViewModel plumbing and Learn in `commonMain`
-
-- **Koin:** `koin-compose` and `koin-compose-viewmodel` are `commonMain` `api` dependencies;
-  `koin-androidx-compose` is gone. The 17 `koinViewModel` call sites changed only their import, to
-  `org.koin.compose.viewmodel.koinViewModel`, which reads `SavedStateHandle` from the same
-  `ViewModelStoreOwner` extras. `koin-android` stays in `:app` for `androidContext()`, the logger,
-  `androidApplication()` and `MainActivity`'s `by viewModel()`.
-- **Lifecycle:** JetBrains' `lifecycle-viewmodel` and `lifecycle-runtime-compose` 2.11.0 in
-  `commonMain`; on Android they resolve to androidx 2.11.0, the version the app already had.
-- **Molecule runs `RecompositionMode.Immediate` on `viewModelScope`** in `GameViewModel` and
-  `FaceToFaceViewModel`, following Molecule 1.0's advice for presenters. `AndroidUiDispatcher` and
-  `ContextClock` are gone, and no helper replaced them: with no frame clock there is no scope to
-  build. Neither molecule uses frame APIs (`withFrameNanos`, `animate*`). **Behaviour change:**
-  state
-  is recomputed on every change instead of at most once per frame; the `StateFlow` conflates what
-  the
-  UI has not drawn. The `FaceToFaceViewModelTest`s already used `Immediate`.
-- **Learn** (`LearnUI`, `LearnViewModel`, `LearnState`, `LearnAction`) is in `commonMain`, same
-  package, and `LearnViewModel` is registered in `sharedModule`. It brought `SenteCard`,
-  `ScrollCollapse.kt`, `TutorialText.kt` and `bottomBarContentPadding` (split out of
-  `SenteBottomNavigationBar.kt`).
-- **The theme is in `commonMain`** (`Theme.kt`, `Type.kt`, `Shape.kt`, `Color.kt`, and
-  `OnlineGoPreviewTheme`). Dynamic colour is `expect fun dynamicColorScheme`: Android 12+ returns
-  the
-  wallpaper scheme, everything else falls back to Material's baseline, so iOS gets the baseline.
-- **Previews in `commonMain`** use CMP's `ui-tooling-preview`; `ui-tooling` is added to
-  `androidRuntimeClasspath` only, so it reaches Android Studio's renderer but not the APK.
-- `iosTest/.../LearnScreenTest` starts Koin with `sharedModule` and the stub platform module (now
-  `internal`, with a tutorials JSON parameter), renders `LearnScreen` through `koinViewModel` and
-  waits for a tutorial group. `SharedModuleTest` also resolves `LearnViewModel`.
-- **Compose report:** 253 rows (19 in `:shared`), 6 unstable parameters, none in `:shared`. **For
-  `:shared`, `--rerun` is not enough:** incremental Kotlin still writes a partial report; add
-  `-Pkotlin.incremental=false`.
-
-### 6.43 Puzzles, socket debug and automatch in `commonMain`
-
-- The puzzle directory, Tsumego, socket debug and the automatch sheet (UI, ViewModels, state) are in
-  `commonMain`, same packages, with `FilterSortPanel`, `RatingBar`, `SearchTextField` and
-  `SortChip`. Their four ViewModels are registered in `sharedModule`.
-- **`AnnotatedString.fromHtml` is Android-only in Compose Multiplatform** (6.2 was right). Tsumego
-  descriptions go through `internal expect fun htmlToAnnotatedString`: Android calls `fromHtml`,
-  unchanged. **The iOS `actual` is a placeholder**, like the iOS `CrashReporter`: it turns `<br>`
-  and
-  `</p>` into line breaks, drops every other tag and decodes six entities, so text shows but links,
-  bold and italics do not (`HtmlTextTest`). Replace it before iOS ships: a small parser for the
-  tags OGS descriptions use, or the markdown renderer if it handles them.
-- **`formatOneDecimal` became `formatDecimal(value, fractionDigits = 1)`**, so the directory's solve
-  rate (`"%.2f".format`, a JVM call) uses it with two digits. Non-finite values print as before
-  (`NaN` when a puzzle has no attempts). The solve rate is computed in `Double` instead of `Float`;
-  at two decimals the output is the same.
-- JVM leftovers fixed on the way: `Math.PI` in `RatingBar` is `kotlin.math.PI`, and common code
-  that uses `Dispatchers.IO` imports `kotlinx.coroutines.IO`.
-- `iosTest/.../PuzzleScreensTest` renders the four screens through Koin on the simulator (Tsumego
-  with a `SavedStateHandle` carrying its route keys); `SharedModuleTest` resolves the four
-  ViewModels.
-- **Compose report:** 254 rows (43 in `:shared`), 6 unstable parameters. The two
-  `currentSortOption: Any` parameters of the sort chips moved to `:shared` with their files.
-
-### 6.44 Tutorial, face-to-face and orientation in `commonMain`
-
-- **`isLandscape()`** (`ui/composables/Orientation.kt`) replaces the six
-  `LocalConfiguration.current.orientation` reads (tutorial, face-to-face, game, AI game, Joseki,
-  `LargeGameItem`). **Android still reads `LocalConfiguration`**, so it is unchanged; only iOS
-  compares the window's `containerSize`. A window-size check on Android was rejected:
-  `containerSize` can be zero on the first frame, which would show a landscape screen's portrait
-  layout for one frame. iOS treats a square window as portrait, as Android does (`OrientationTest`).
-  `screenWidthDp` / `screenHeightDp` in `GameUI` and `LargeGameItem` stay until those screens move.
-- The tutorial and face-to-face screens (UI, ViewModels, state) are in `commonMain`, same packages,
-  registered in `sharedModule`. They brought `TitleBar`, `BottomBar`, `DotsAnimations.kt`,
-  `ComposableUiUtils.kt` (`repeatingClickable`, `shimmer`, `PreviewBackground`) and
-  `ExtraStatusField`, now its own file in the `game` package.
-- **`:shared` has the app's module-wide opt-ins** (`ExperimentalAnimationApi`,
-  `ExperimentalFoundationApi`, `ExperimentalComposeUiApi`), so moved UI compiles under the same
-  rules.
-- JVM leftovers: `BottomBar` keys its buttons by `it::class` instead of `it.javaClass`, face-to-face
-  uses `kotlin.math.max` instead of `java.lang.Float.max`.
-- `FaceToFaceViewModelTest` stays in `:app` and tests the common class.
-- `iosTest/.../TutorialAndFaceToFaceTest` renders both screens through Koin on the simulator (the
-  tutorial with its `tutorialName` route key).
-- **Compose report:** 255 rows (81 in `:shared`), 6 unstable parameters; `FaceToFaceViewModel`'s
-  `<this>` moved to `:shared` with it, so three are there now.
-
-### 6.45 My Games, new challenges and What's new in `commonMain`
-
-- My Games (13 files, the Play tab), the new-challenge sheet and opponent picker, What's new
-  (`WhatsNewBottomSheet`, `WhatsNewUtils`), `ChatIndicator`, `HorizontalPagerIndicator`,
-  `PlayerColorIndicator`, `ClockText` and `Urls.kt` are in `commonMain`, same packages. Their three
-  ViewModels and `WhatsNewUtils` are registered in `sharedModule`.
-- **`BackHandler`** (`ui/composables/BackHandler.kt`) wraps `navigationevent-compose`'s
-  `NavigationBackHandler` with `androidx.activity`'s signature; all seven call sites import it. On
-  Android, Activity 1.13 dispatches back through `navigationevent` 1.1.0, the version resolved
-  before. It composes on the iOS simulator (`MyGamesScreensTest` renders the opponent picker).
-- **What's new keeps its stored hash.** The MD5 is okio's `md5().hex()` in `changelogHash`, pinned
-  against the old `MessageDigest` code by `ChangelogHashTest` (host, non-ASCII changelog). A
-  different value would show the sheet to everyone after the update. The `whats_new` DataStore is
-  in the platform contract (`WHATS_NEW_DATA_STORE`): Android keeps the same file through the
-  delegate, now in `PreferenceDataStores.kt`; iOS gets `whats_new.preferences_pb`.
-  `WhatsNewUtilsTest` (iOS) covers fresh install, update and shown.
-- **`screenSize()`** (`ui/composables/ScreenSize.kt`) replaces `screenWidthDp` / `screenHeightDp`
-  in `LargeGameItem` and `GameUI`; like `isLandscape()`, Android keeps `LocalConfiguration` and iOS
-  uses the window size.
-- **Coil:** `coil-compose` is a `commonMain` `api` dependency. Android keeps `coil-network-okhttp`
-  in `:app`; **iOS has no network fetcher yet**, so avatars will not load there until the iOS app
-  adds
-  `coil-network-ktor3`.
-- What's new opens the translation guide through `LocalUriHandler` instead of an `Intent`.
-- JVM leftovers: `System.currentTimeMillis()` (button debouncing, a Crashlytics key) is
-  `Clock.System`; `MyGamesViewModel` logs `action::class.qualifiedName`, so breadcrumbs read
-  `...Action.ChallengeAccepted` instead of `...Action$ChallengeAccepted`. `HEADER_AVATAR_*` are
-  public, because the app's avatar preload reads them.
-- `GameOutcomeFormatterTest` stays in `:app`.
-- **Compose report:** 257 rows (137 in `:shared`), 6 unstable parameters, unchanged; the two new
-  rows
-  are `BackHandler` and `screenSize`.
-
-### 6.46 The game screen in `commonMain`
-
-- `GameUI`, `GameViewModel`, `TimeControlDescription`, `ChatDialog`, `PlayerCard`,
-  `PlayerDetailsDialog` and `TextResource.kt` are in `commonMain`, same packages; `GameViewModel`
-  is registered in `sharedModule`.
-- **Stone sound:** `res/raw/stone.ogg` became `composeResources/files/stone.wav`, decoded once with
-  `afconvert` (16-bit PCM, 48 kHz stereo, 0.18 s, 38 KB), so it sounds the same and both platforms
-  can play it (iOS has no Vorbis). AAC was rejected: lossy re-encoding and decoder start-up on a
-  click. `rememberStoneSound` (common) loads it from `Res.getUri("files/stone.wav")`, remembers
-  the player and releases it on dispose. Loading is a `SoundLoader` in the platform contract:
-  - **Android** (`AssetSoundLoader`, bound in `androidPlatformModule`) opens the asset in place,
-    `assets.openFd` on the URI minus `file:///android_asset/`, and prepares a `MediaPlayer` on
-    `Dispatchers.IO`. This needs the WAV stored uncompressed in the APK: it is (AGP never
-    compresses `.wav`); a compressed asset would make `openFd` throw. Measured on the emulator, the
-    first load takes ~115 ms while the media service starts, later ones ~9 ms.
-  - **iOS** (`BundleSoundLoader`) builds an `AVAudioPlayer` from the file URL; `SoundPlayerTest`
-    checks its 0.18 s duration on the simulator.
-  - Android playback was checked with a throwaway instrumented test through the app's Koin graph.
-- **Keep screen on** is Compose's common `Modifier.keepScreenOn()`, on a zero-size `Spacer` that
-  lives as long as the screen; the window flag code is gone.
-- **Links** open through `LocalUriHandler`.
-- **Review prompt:** `ReviewRequester` / `LocalReviewRequester` (`utils/ReviewRequester.kt`).
-  `MainActivity` provides one that calls `ReviewPromptManager.requestReview(activity)`; the default
-  does nothing, so previews and tests need no Play services. iOS needs one built on
-  `SKStoreReviewController`.
-- **Notification cancel:** `GameNotificationCanceller` is in the platform contract: `:app` binds it
-  to `NotificationUtils.cancelNotification`, iOS takes it as a fourth `initKoin` parameter.
-- JVM leftovers: the game-over rating is `roundToInt()` instead of `String.format("%.0f")`, and the
-  action log uses `::class.qualifiedName` (6.45).
-- **Tests that create `GameViewModel` must cancel its `viewModelScope`.** Outside a
-  `ViewModelStore` nothing does, and its clock timer then calls `computeTimeLeft` after
-  `stopKoin()`;
-  `Globals1.kt` reads Koin when the file loads, so the file fails to initialize and a later test
-  fails with `FileFailedToInitializeException`. Route arguments in test `SavedStateHandle`s need
-  `mapOf<String, Any>`: an untyped `19` next to `1L` is inferred as `Long`.
-- `iosTest/.../GameScreenTest` renders the game screen on the simulator over a game inserted into
-  the in-memory database (`DatabaseTest`'s fixture, now `internal`).
-- **Compose report:** 258 rows (179 in `:shared`), 6 unstable parameters, unchanged.
-
-### 6.47 The AI game in `commonMain`
-
-- `AiGameUI`, `AiGameViewModel`, `AiGameState`, `AiChatBox` and the three serializers
-  (`utils/serializers`) are in `commonMain`, same packages. `AiGameViewModel` is registered in
-  `sharedModule`; `AiGameUI` is public now, because `:app`'s `AiGameUIScreenshotTest` calls it.
-- **The engine is platform code behind `AnalysisEngine`** (`ai/AnalysisEngine.kt`): `start()`,
-  `stop()`, `analyzeMoveSequence(...)`, `searchThreads`, exactly what the ViewModel uses. It is in
-  the platform contract:
-  - **Android:** `KataGoAnalysisEngine` implements it and stays in `:app` with the native binary and
-    the network files it unpacks, bound in `Modules.kt`. Unchanged otherwise.
-  - **iOS:** `UnavailableAnalysisEngine` (`iosMain`), whose `start()` throws "Local AI is not
-    available on iOS". The ViewModel already turns a failed start into its engine-error state, so
-    the screen shows the message instead of crashing (`AiGameScreenTest`). **The decision in 4.1 is
-    still open**; this only records today's answer, and the iOS app must also hide the AI entry
-    point. In-process KataGo would replace this one binding.
-- **`AiGameViewModelTest` moved to `commonTest`** (it tests `internal` functions, now in another
-  module): JUnit asserts became `kotlin.test`, `assertThrows` became `assertFailsWith`, one
-  message-first `assertTrue` was reordered, and five test names lost a comma for Kotlin/Native. Its
-  32 tests now also run on the iOS simulator.
-- JVM leftovers: two debug-only win-rate logs used `"%.3f".format`; they use the internal
-  `formatDecimal(value, 3, '.')`.
-- **Compose report:** 258 rows (206 in `:shared`), 6 unstable parameters, unchanged.
-
-### 6.48 The Joseki explorer and the bottom bar in `commonMain`
-
-- `JosekiExplorerUI`, `JosekiExplorerViewModel`, `JosekiExplorerState`, `SenteBottomNavigationBar`
-  and `Route` are in `commonMain`, same packages. `BottomNavItem` moved from `Navigation.kt` into
-  the bottom bar's file. `JosekiExplorerViewModel` is registered in `sharedModule`.
-- **Markwon became `multiplatform-markdown-renderer-m3`** (0.46.0) with the **CommonMark flavour**,
-  the dialect Markwon's core parsed. GFM would also turn bare URLs into links and parse tables. Kept
-  from Markwon: 14 sp body text, headings at Markwon's scale (2x to 0.67x, bold), and underlined
-  links in `colorPrimaryDark`'s two values. The light value is `darkBlue`, the dark one is the new
-  `nightDarkBlue`, picked by `LocalThemeSettings.isDarkTheme`. `colorPrimaryDark` is gone.
-  `rememberMarkdownState(retainState = true)` keeps the old description on screen while the next
-  one parses, so changing position doesn't flash. The renderer's default `animateContentSize()` on
-  each text block is turned off (`markdownAnimations(animateTextSize = { this })`): with the old
-  description retained, a heading that changes size between positions animated to its new size.
-- **Links** (`JosekiLinks.kt`): `josekiLinkOf` sorts a destination into a position (`Position:N`,
-  a bare node id, an `online-go.com/joseki/N` URL), a YouTube video or an external link. URLs are
-  parsed with Ktor's `parseUrl`. Clicks go through a `UriHandler` provided around the markdown:
-  positions load in place and everything else goes to the platform handler. Behaviour changes: a
-  joseki URL without a numeric last segment is logged instead of crashing on `toLong()`, and
-  external links no longer pass `Browser.EXTRA_APPLICATION_ID`.
-- **Link labels**: Markwon appended "(video)" / "(external link)" to the link node. Now
-  `labelJosekiLinks` parses the markdown with the same parser and inserts the label before each
-  inline link's closing `]`, so the label is part of the link, as before. **Only inline links get
-  a label.** In 40 sampled positions every link was an inline link, so reference links and
-  `<autolinks>` still work but get no label.
-- The load error is logged and sent to `CrashReporter` from the ViewModel, once per error. It used
-  to be logged in the `AndroidView` update block on every recomposition.
-- `JosekiLinksTest` (`commonTest`) covers the link classification and labels; `iosTest/.../
-  JosekiExplorerScreenTest` renders a stored position's markdown with its label on the simulator.
-  R8 passes on the release build with no new rules.
-- **Compose report:** 260 rows (220 in `:shared`), 6 unstable parameters. The two new rows are
-  `DescriptionMarkdown` and `descriptionTextStyle`.
-
-### 6.49 The rank chart on a Compose `Canvas`
-
-- **MPAndroidChart is gone, replaced by `RankChart` in `ChartWrapper.kt`, a `Canvas`; no
-  chart library.** Every axis, label, grid, legend and marker was switched off, so the chart was
-  one line, a gradient fill and a crosshair. Vico or KoalaPlot would have been configured to
-  turn features off, and the tooltip was custom either way. JitPack served only MPAndroidChart and
-  is gone from `settings.gradle.kts`.
-- Kept: the 1.3 dp line in `rankGraphLine`'s two values (`salmon` at 40% in light, `nightBlue` in
-  dark), the vertical gradient to transparent over the full height, the y range from
-  `0.85 * min` with MPAndroidChart's 10% top headroom, the grey 0.7 dp crosshair dashed 7/2 px
-  (MPAndroidChart passed raw pixels, not dp), and a 250 ms linear rise on first show.
-- **Selection** picks the point with the nearest x, on touch-down and on every move, and clears
-  on release. The chart consumes its pointer events, so the parent's `verticalScroll` no longer
-  needs the `disableScroll` callback. The static `ChartValueSelectedListener`, which held the
-  `LineChart`, is gone: the tooltip is derived from the selected index, or else the summary.
-- **Pinch-zoom is dropped.** MPAndroidChart enabled it by default and nothing surfaced it. With
-  no axis labels a zoomed chart had no scale, and the range tabs cover narrowing.
-- Removed as dead: `DayAxisValueFormatter` (x labels were off), the idempotent
-  `onFilterChanged(filter)` in the `update` block, `rankGraphLine`, and `stats_no_ranked_games`
-  (MPAndroidChart's no-data text, never shown because the placeholder image covers the empty
-  case).
-- `formatMediumDate` (`ui/composables/LocalizedDates.kt`) is an `expect`/`actual` like
-  `decimalSeparator()`: `DateUtils` on Android as before, `NSDateFormatter` medium style on iOS.
-  It is public until Stats moves to `commonMain`, then `internal`. `ChartWrapper` has no
-  `android.*` imports left.
-- R8 passes on the release build with no rule changes.
-
-### 6.50 Stats in `commonMain`
-
-- `StatsUI`, `StatsViewModel` and `ChartWrapper` are in `commonMain`, same package.
-  `StatsViewModel` is registered in `sharedModule`, and `formatMediumDate` is `internal` now.
-- **`String.format` replaced:** the header rating is `roundToInt()`, and the win-rate cell and
-  the win/loss bars use `formatDecimal`, so they keep the locale's decimal separator. The signed
-  bar prints `+0.0` where Java printed `-0.0` for a value that rounds to zero.
-  `gamesWonString` / `gamesLostString` were written and never read, so they are gone.
-- The chart's nearest-point lookup works on a `List<Float>`, because `FloatArray.binarySearch`
-  is JVM-only. `NearestIndexTest` (`commonTest`) covers it.
-- `iosTest/.../ChartWrapperTest` renders the chart on the simulator. It checks the summary
-  tooltip with a date from `NSDateFormatter` (the simulator's locale gives "15 Mar 2026"), and
-  that touching the chart shows the point and releasing restores the summary.
-- Still English-only, unchanged: the best-streak and highest-rank dates are built in
-  `StatsViewModel` with `MonthNames.ENGLISH_ABBREVIATED`.
-
-### 6.51 Settings in `commonMain`
-
-- `SettingsUI` and `SettingsViewModel` are in `commonMain`, same package. `SettingsViewModel` is
-  registered in `sharedModule`.
-- **The language is a platform contract**, `AppLanguageSetting` (`language`, `refresh`,
-  `setLanguage`).
-  - Android: `AppLocaleManager` moved to `androidMain` unchanged apart from `setLanguage`
-    returning `Unit`, and is bound in `androidPlatformModule`.
-  - Below Android 13 the activity is now recreated by `MainActivity`, which collects
-    `language.drop(1)`, instead of by Settings through `LocalActivity`. It recreates only when
-    the activity's primary locale differs from the new language. Without that check, `refresh()`
-    caused a second recreate: after a phone-language change the platform has already recreated
-    the activity, and Settings then reads the new language.
-  - iOS: `UserDefaultsAppLanguageSetting` reads and writes `AppleLanguages`, walking the list
-    like Android. Compose Multiplatform resources pick a new language up on the next launch, so
-    the iOS app owes a "restart to apply" notice.
-- **Notification settings:** `rememberOpenNotificationSettings()`, an `expect`/`actual`. Android
-  keeps the old intent and extras, using `LocalContext`. iOS opens the app's page in Settings.
-- **Links** go through `LocalUriHandler`.
-- **From `:app`, through `Navigation`:** `versionCode`, plus the two debug rows' actions
-  (`ReviewPromptManager.forceShowReviewPrompt` and `NotificationUtils.notifyGameForDebug`) as
-  suspend lambdas. `ReviewDiagnosticResult` moved to `commonMain`, with `error::class.qualifiedName`
-  in place of `javaClass.name`.
-- `UserDefaultsAppLanguageSettingTest` (`iosTest`) covers the round trip, the first translated
-  entry winning, and the fallback. `SharedModuleTest` stubs the new binding.
-
-### 6.52 Supporter in `commonMain`
-
-- `SupporterUI` and `SupporterViewModel` are in `commonMain`, same package. `SupporterViewModel`
-  is registered in `sharedModule`.
-- **Billing is a contract**, `SupporterStore` (`data.billing`), with plain `SupporterProduct` (id,
-  formatted price) and `SupporterPurchase` (product ids, auto-renewing, token). The ViewModel and
-  its state no longer touch Play Billing types.
-  - `PlayStoreService` stays in `:app` with the billing dependency, implements the contract, and
-    is bound as both. It keeps the last queried `ProductDetails` by id, because the billing flow
-    needs them.
-  - The formatted price is the first offer's first pricing phase, as before.
-  - iOS binds `UnavailableSupporterStore`, which throws, so the screen shows the error.
-- **`launchBillingFlow` needs an `Activity`,** so `Navigation` passes it in as a suspend lambda.
-  The manage-subscription link goes through `LocalUriHandler`. The `activity?.let` /
-  `CrashReporter` guards went with the activity.
-- **Errors show as a `Snackbar`** (bottom, above the system bars) instead of a `Toast`. A null
-  message falls back to the exception's `toString()`; the toast showed it empty.
-- `SupporterViewModelTest` (`commonTest`, a fake store) covers filtering and price order, tier
-  selection with and without a subscription, a non-renewing purchase, the subscribe-button rule,
-  the billing-flow event, and a failed query. It sets `Dispatchers.Main` and waits on real time,
-  since the ViewModel queries on `Dispatchers.IO`.
-
-### 6.53 Onboarding in `commonMain`
-
-- `OnboardingUI` and `OnboardingViewModel` are in `commonMain`, same package.
-  `OnboardingViewModel` is registered in `sharedModule`. Its log tags are string literals instead
-  of `::class.java.simpleName`.
-- **Google sign-in** is `rememberGoogleSignIn` (`expect`/`actual`), which returns `Success`
-  (server auth code), `Failure` (status code and exception) or `Cancelled`. The screen keeps the
-  reactions: the token goes to the ViewModel; a failure is logged, recorded with the original
-  `ApiException`, and shown with its status code; a cancel goes back a page.
-  - Android: today's `GoogleSignIn` activity-result flow, client id and scopes, moved to
-    `shared/androidMain` together with `play-services-auth` and `activity-compose`.
-  - iOS: reports `Cancelled`, so the Google answer returns to the login methods. Hiding it was
-    not an option without reworking the ViewModel's index-based answers (its `FIXME`), which is
-    out of scope for a move.
-- **Notification permission:** `notificationPermissionRequired` replaces the ViewModel's
-  `Build.VERSION` check (Android 13+, always on iOS). `rememberNotificationPermissionRequest`
-  wraps the `POST_NOTIFICATIONS` launcher on Android and `UNUserNotificationCenter` on iOS.
-- **The sign-in error is a `Snackbar`** instead of a `Toast`, as in 6.52.
-- `iosTest/.../OnboardingScreenTest` starts at the login methods, picks Google, and lands back on
-  the question through the iOS placeholder.
-
-### 6.54 The navigation host in `commonMain`
-
-- `Navigation.kt` (`OnlineGoApp`, the bottom bar wiring, the Stats login sheet) is in `commonMain`,
-  same package. With it, every screen and the nav graph are common code. `:app` keeps
-  `MainActivity`, `Application`, notifications and WorkManager, `PlayStoreService`,
-  `ReviewPromptManager` and KataGo.
-- **androidx `navigation-compose` 2.9.7
-  became `org.jetbrains.androidx.navigation:navigation-compose`
-  2.10.0** in `:shared`. It needs lifecycle 2.11.0 and navigationevent 1.1.0, which the project
-  already has. On Android it delegates to androidx `navigation-compose` 2.10.0, so the Android
-  implementation is the same library, a minor version up. The `sente://game` deep link is still
-  handled by `NavController` from the activity intent.
-- **Predictive back:** 2.10 changed the default `predictivePopEnterTransition` /
-  `predictivePopExitTransition` from the host's pop transitions to the platform's own, which on
-  Android is a scale with no fade. That applies to the back gesture from any screen, and from any
-  tab
-  back to Play. `NavHost` now passes the same 500 ms fades explicitly, as 2.9 did by default.
-- **`OnlineGoApp` takes what only `:app` has as parameters:** `versionCode`, `onForceReviewPrompt`,
-  `onTestNotification`, `onLaunchBillingFlow` and `onFinish`. `MainActivity` supplies them,
-  so nothing in common code needs an `Activity`. The deep-link log moved to `MainActivity.onCreate`.
-- `iosTest/.../OnlineGoAppTest` renders the app on the simulator, switches to Learn through the
-  bottom bar, and gets the Stats login sheet when logged out.
-- **`:app` cleanup after the move:**
-  - Removed as dead:
-    - `FlowUtils.kt` (`combine` overloads with no callers)
-    - the idling-resource pair and its Koin binding, which nothing injected, plus the only
-      androidTest file, `EspressoIdlingResource`
-    - the `colorActionableText` / `colorAccent` colours
-  - Dependencies: `espresso-idling-resource`, which shipped in the release APK, and the
-    androidTest setup are gone. Compose, DataStore, lifecycle-viewmodel-ktx, serialization,
-    immutable collections, Kermit, datetime and coil-compose are no longer declared in `:app`;
-    `:shared` already exposes them with `api`. The resolved release, debug and unit-test classpaths
-    are unchanged apart from `espresso-idling-resource`. Unused catalog entries went with them.
-  - **Kept on purpose:**
-    - `coil-network-okhttp`: no imports, but Coil finds its network fetcher at runtime.
-    - The estimator's JNI glue and `CMakeLists.txt`: the KMP Android library plugin `:shared`
-      uses has no `externalNativeBuild`.
-    - The Compose BOM: it versions the debug and screenshot-test `ui-tooling`.
-
-### 6.55 The app shell's logic in `commonMain`
-
-- **`MainActivityViewModel` became `AppViewModel` in `commonMain`,** registered in `sharedModule`.
-  It holds the persisted theme settings, the onboarding flag, the login status, and the socket
-  connect on resume / disconnect on pause. The unused `screenDataLoaded` / `hasLoadedTheme` /
-  `isLoaded` are gone.
-- **`OnlineGoRoot` (`commonMain`) is the app's entry composable.**
-  - It drives `AppViewModel` from `LifecycleResumeEffect`.
-  - It builds `ThemeSettings` from the settings and Compose's `isSystemInDarkTheme()`. That
-    replaces the activity's configuration-change `callbackFlow`.
-  - It loads the preloaded board images with `produceState`, outside the onboarding gate, so
-    loading starts on the first frame.
-  - It provides the theme, image and review locals, then shows `OnlineGoApp` once the
-    onboarding flag is known.
-  - `MainActivity.setContent` is now a single `OnlineGoRoot(...)` call.
-- **System bars:** `SystemBarsAppearance(darkTheme)` is an expect/actual. Android runs the same
-  `enableEdgeToEdge` with the androidx scrims; iOS is a no-op until the iOS shell sets the
-  status-bar style.
-- **Start-up warm-up:** `prewarmApp(context, density)` (`di/Prewarm.kt`) resolves the REST and
-  socket services, preloads the avatar through Coil, and warms `RulesManager`.
-  `OnlineGoApplication` calls it; iOS will call it after `initKoin()`.
-- **What stays Android-only:**
-  - the locale wrapping and the recreate below 13
-  - StrictMode
-  - notification channels and the WorkManager schedule
-  - `isInForeground`, which the notification workers read
-  - Koin start and the Crashlytics breadcrumb log writer
-  - Ktor's SecureRandom workaround below API 26
-
-  `MainActivity` went from 394 to 253 lines, and `OnlineGoApplication` from 108 to 68.
-- `iosTest/.../OnlineGoRootTest` renders the root on the simulator with a fresh settings store,
-  and it lands on the first onboarding page.
-
-### 6.56 Dead code after the moves
-
-- A reference scan over both modules (declarations whose name appears nowhere else, repeated until
-  nothing new turned up) found these, now removed:
-  - **DTOs:** `GameList`, `LoginToken`, `NetPing`, `SeekGraphChallenge`
-  - **Shared code:**
-    - the `SortOption` enum
-    - `COLORS_DARK` in Stats
-    - twelve colours in `ui/theme/Color.kt`
-    - `Cell.fromSGF`
-    - `RulesManager.isIllegalKO` and its helper `isLivingStone`
-  - **Review prompt:**
-    - `ReviewPromptRepository.getReviewPromptState` / `ReviewPromptState`
-    - `recordReviewPromptRated` and `resetReviewPromptState`
-    - `ReviewPromptManager.markAppAsRated` and `resetReviewState`, the only callers of the
-      previous two
-
-  `REVIEW_PROMPT_RATED` stays: `shouldPromptForReview` still reads it from existing installs.
-- **Kept although the scan flags them:** Room `@TypeConverter`s, serialized DTO fields (they
-  mirror the server JSON), `serialVersionUID` for the legacy cookie import, previews, and the
-  screenshot tests.
-- No unused Compose resources: every string, drawable and file is referenced.
-- **Tests moved** from `:app` to `commonTest`, so they also run on iOS:
-  - `AiDifficultySerializerTest`
-  - `GameOutcomeFormatterTest`, whose `String.format` stub became a plain `%N$s` substitution
-- **Tests kept in `:app`:**
-  - `TutorialsJsonParsingTest`: it reads `:app`'s `tutorials.json` asset.
-  - `FaceToFaceViewModelTest`: Mockito, Koin's JUnit rule and `InstantTaskExecutorRule`.
+## 6. Decisions and traps still load-bearing
+
+Only what still matters: traps, deliberate behaviour changes, and decisions that look wrong but
+aren't. Slice numbers (6.x) are kept in parens so a commit still maps to an entry; the full
+slice-by-slice write-up (exact test names, compose-report deltas, APK size diffs) is preserved at
+`git show 9cf6cb29:docs/KMP_MIGRATION_ASSESSMENT.md` if that detail is ever needed again. Unit
+tests stand at 201: 143 in `:shared` host tests (127 of them in `commonTest`, which also run on
+the iOS simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
+
+### 6.1 Data layer (Phase 3: serialization, network, storage, DI)
+
+- **Serialization** (6.1, 6.21): one `appJson`. `explicitNulls = false`, so every nullable DTO
+  property defaults to `null` - the safety net for a property added without a default.
+  `isLenient` doesn't cover numbers: OGS sends `99999999.0` for an `Int?`, handled per-file by
+  `@file:UseSerializers` with `LenientIntSerializer`/`LenientLongSerializer` - a new DTO file
+  without it loses that leniency. `AnySerializer` reproduces Moshi's runtime types (`Double`,
+  `LinkedHashMap`) because call sites cast to them. Room stayed at schema version 20 on purpose,
+  so a stale `MoveTree` blob throws visibly instead of being silently wiped.
+- **jsoup → `fromHtml`** (6.2, 6.43): Android-only in Compose Multiplatform 1.13, behind
+  `htmlToAnnotatedString`. **The iOS `actual` is a placeholder** - line breaks only, no
+  links/bold/italic. Replace before iOS ships.
+- **Coil 2 → 3** (6.3): `rememberAsyncImagePainter` now defaults to `Size.ORIGINAL`, so avatar
+  sites use `AsyncImage` instead (silent memory regression otherwise). `processGravatarURL` rounds
+  up to the CDN's 64/128/256/512 buckets instead of always asking for 512.
+- **Retrofit → Ktorfit** (6.4): `baseUrl` needs a trailing `/`, paths must not start with one,
+  `@Body` needs `defaultRequest` for `Content-Type`, a `%` in a path crashes KSP (Google OAuth
+  constants are `@Query` defaults), `expectSuccess` throws on 3xx (opted out for the Google
+  handshake). Errors surface as `OGSApiException`. **Still owed, unit tests can't reach them:**
+  seven body-bearing endpoints (`createAccount`, `openChallenge`, `challengePlayer`,
+  `markPuzzleSolved`, `ratePuzzle`, `acknowledgeWarning`, `deleteAccount`) - see §1.2.
+- **Cookie store** (6.5): SharedPreferences, not DataStore (`isLoggedIn()` must be synchronous on
+  cold start). **Only `csrftoken` and `sessionid`, only for the OGS host** - a trust boundary; a
+  third required cookie would break login with no obvious cause. The legacy Java-serialized
+  import stays until Play Console shows pre-6.5 installs are negligible (§1.1).
+- **Logging → Kermit** (6.6): `CrashlyticsBreadcrumbWriter` forwards Info+ as breadcrumbs and
+  never records non-fatals. **Release logcat is silent** - still owed, see §1.2.
+- **`java.time` → kotlin.time/kotlinx-datetime** (6.7): Room still stores epoch millis. Desugaring
+  stays (kotlinx-datetime needs `java.time` below API 26). The stats chart tooltip date still uses
+  `DateUtils`/English month names (kotlinx-datetime has no locale names).
+- **DI** (6.8, 6.31): remaining global lookups are deliberate - lazy injection breaks cycles in
+  `OGSWebSocketService`/`UserSessionRepository`, the two WorkManager workers, `GameConnection`,
+  `Globals1`'s `ClockDriftRepository`. `GlobalContext` is JVM-only; common code uses
+  `KoinPlatform.getKoin()`. Koin follows the layers: `sharedModule` (commonMain) →
+  `androidPlatformModule`/`iosPlatformModule` (platform contract) → each app's composition root.
+  `iosTest/.../SharedModuleTest` resolves every `sharedModule` definition against stubs of the
+  platform contract, so a definition added without its platform binding fails there.
+  `OGSWebSocketService.eventListeners` is copy-on-write over persistent collections - a listener
+  removed mid-dispatch can still receive that one event (6.13).
+- **Analytics/Crashlytics behind interfaces** (6.9, 6.10): all crash reports go through the common
+  `reportableException()` filter - cancellation and network errors are no longer reported, HTTP
+  5xx is wrapped in `ServerException`. **The iOS `CrashReporter` is still a placeholder** - logs
+  through Kermit, drops breadcrumbs/user id/keys. Replace before iOS ships.
+- **Layering** (6.11): nothing in `data.model`/`gamelogic` imports `R`, `android.graphics`,
+  Compose UI. Presentation enums (`BoardTheme`, `AppTheme`, `AppLanguage`, `TutorialIcon`) carry no
+  resource ids - a new enum entry won't compile without its resources.
+- **Clock text** (6.16): an expired clock shows `0.0s` instead of `0.0`, and decimals follow the
+  locale (`1,5s` in German) - behaviour changes from the Java version. **Digits are always
+  Latin**, like every integer the app prints; a device in a locale with its own digits (Arabic)
+  used to get them only in these decimals.
+- **Websocket** (6.14): the Ktor `WebSockets` plugin's `pingInterval` is ignored by the OkHttp
+  engine - the 15s ping lives on the shared `OkHttpClient` and pings REST HTTP/2 connections too;
+  Darwin takes it from the plugin. **`disconnect()` closes the outbound queue rather than
+  cancelling it**, so `cleanup()` messages drain before the close frame - still owed on logout,
+  see §1.2. A bad incoming payload is reported and skipped instead of dropping the socket. CIO was
+  rejected as the Android engine (HTTP/1.1 only, worse recovery, no emulator DNS hook).
+- **Threading** (6.15): `OGSWebSocketService`/`GameConnection` share a coroutine `Mutex`; former
+  `runBlocking` calls wait on `loginStatus.first()`, which can really wait at cold start - don't
+  swap it for `replayCache`. **Ref-counting lives in the service** (the old re-entrant lock would
+  deadlock under a plain `Mutex`); `GameConnection.close()` launches `release()` on
+  `applicationScope` - still owed, see §1.2.
+- **HTTP client / storage / session cluster in `commonMain`** (6.27-6.30): `HTTPConnectionFactory`
+  (OkHttp, emulator DNS hook, 15s ping), cookie persistence/import and the DataStore delegates
+  stay `androidMain`. `PersistenceManager` stays synchronous SharedPreferences by design (a
+  DataStore move would need a migration whose failure drops the session). `UserSessionRepository`
+  takes an `AppDataEraser` instead of a `Context` - Android's calls
+  `ActivityManager.clearApplicationUserData()` (wipes everything, kills the process); **an iOS
+  `AppDataEraser` must clear the database, both DataStores and both `NSUserDefaults` suites
+  itself.** **Known bug, unchanged:** the Joseki label regex `<(.):([A-H]|[J-T]\d{1,2})>` excludes
+  columns A-H with two-digit ranges; the intended pattern is `[A-HJ-T]\d{1,2}` - fixing it changes
+  what the explorer shows, so it wasn't fixed as part of the move.
+- **Room in `commonMain`** (6.25): schema/version unchanged (byte-identical `20.json`, same
+  identity hash - an older APK still opens the file). Android keeps the framework SQLite; iOS gets
+  `BundledSQLiteDriver`. Every DAO call became `suspend`/`Flow` (native targets reject blocking
+  DAOs). `Database` in `Database.kt` must spell out the `expect object DatabaseConstructor` in
+  full, or KSP fails.
+- **Score estimator on iOS** (6.26): **decided - stays C++, via `cinterop`**, not a Kotlin port
+  (Monte Carlo, 2000 playouts/estimate - parity would need a seeded bit-exact harness,
+  Kotlin/Native speed unmeasured). JNI symbol is `Java_..._gamelogic_NativeEstimator_estimate`;
+  **renaming or moving that class breaks scoring silently** (`UnsatisfiedLinkError` is caught and
+  only logged) - R8 keeps it through the default native-method rule. `iosTest` runs the real C++
+  on `Dispatchers.Default`, whose 512KB iOS stacks are the tightest the estimator's stack-allocated
+  grids will see.
+- **iOS platform module** (6.32): `getLong` must read `objectForKey`, not `integerForKey` (which
+  returns 0 for a missing key, not the default). `SessionCookiePersistence` stores the whole
+  cookie map as one JSON string per write. NSURLSession's own redirect-following is blocked by
+  Ktor's delegate, so `followRedirects = false` still holds for the Google handshake.
+  **Kotlin/Native's standalone simulator test run fails every TLS handshake** - real-network iOS
+  tests need a booted, non-standalone simulator.
+
+### 6.2 Resources (Phase 4)
+
+- **Strings** (6.36): one CMP-format string set read by both platforms. **Crowdin's Android and
+  "Compose Multiplatform XML" exports both produce Android escapes (`\'`, `\"`, `%%`) that CMP
+  shows literally** - a Custom Post-Export Processor unescapes every exported `strings.xml`. **If
+  the processor stops running, the next Crowdin PR silently breaks translated strings.** `app_name`
+  stays an Android resource (the manifest needs it). A partially-translated device locale now
+  falls back to English per-string instead of failing to load.
+- **Drawables** (6.39, 6.40): **CMP's vector parser only accepts literal `#` colors** - an
+  `@color/`/`?attr/` reference builds fine and throws at load time. **The dark-mode qualifier
+  follows the system setting, not the app's own theme setting**, unlike before - affects any
+  `Image` using a `drawable-dark/` twin (the Tsumego arrows were swapped for tinted `Icon`s to
+  dodge this). The board's text is centered on ink bounds measured per-platform
+  (`Paint.getTextBounds` on Android, Skia's `Font.measureText` on iOS); **the iOS typeface must be
+  `.AppleSystemUIFont`** - Helvetica is a couple of px off on some digits. Stone shadows are a
+  radial gradient fitted to Android's old shadow layer, not a per-platform `Paint`/`Build` check.
+- **`BoardView` removed** (6.37): notifications render through `renderBoard` (Android-only,
+  rasterizes stone drawables to bitmaps since `VectorPainter` needs a composition). Notifications
+  now use the Settings board style and system dark mode instead of always light wood.
+- **Material icons** (6.41): multiplatform artifact is frozen at androidx 1.7.8 parity and
+  compiled against Compose 1.7 - works on newer Compose only through binary compatibility;
+  re-check after every Compose upgrade.
+
+### 6.3 UI → Compose Multiplatform (Phase 4)
+
+- **ViewModel plumbing** (6.42): Molecule runs `RecompositionMode.Immediate` on `viewModelScope`
+  (no frame clock is available without `AndroidUiDispatcher`). **Behaviour change:** state
+  recomputes on every change instead of at most once per frame.
+- **Orientation/window size** (6.44, 6.45): `isLandscape()`/`screenSize()` keep Android on
+  `LocalConfiguration` and use window size only on iOS - a window-size check was rejected on
+  Android because `containerSize` can be zero on the first frame.
+- **Puzzle picker dropdown** (6.20): kept its own lazy `Popup`-based menu instead of Material3's
+  `ExposedDropdownMenu`, which still lays out a scrolling `Column` and would render every puzzle
+  in the collection on open.
+- **Sound** (6.46): the stone sound is an uncompressed WAV in Compose resources - **AGP never
+  compresses `.wav`, which `AssetSoundLoader.openFd` depends on; a compressed asset would throw.**
+- **Review prompt / notification cancel** (6.46): `ReviewRequester` and `GameNotificationCanceller`
+  are platform-contract interfaces; the Android `MainActivity` binds them, **iOS still has no
+  implementation** (needs `SKStoreReviewController`) - not reproducible for review prompts on the
+  dev account either way (Play quota), see §1.2.
+- **Local AI** (6.47): `AnalysisEngine` is a platform contract; iOS binds
+  `UnavailableAnalysisEngine`, whose `start()` throws, so the AI-game screen shows an error state
+  instead of crashing. **The open decision in §4.1 (ship iOS v1 without local AI) isn't made -
+  this only records today's fallback**, and the iOS app still needs to hide the AI entry point if
+  it ships without it.
+- **Joseki markdown** (6.48): renderer uses the CommonMark flavour, not GFM (no bare-URL
+  autolinking, no tables). Link labels ("(video)"/"(external link)") are only applied to
+  **inline** markdown links - reference links and autolinks render unlabeled.
+- **Charts** (6.49, 6.50): MPAndroidChart was replaced by a plain Compose `Canvas` (`RankChart`)
+  with no axis labels, legend or pinch-zoom - deliberately dropped, nothing used them. Best-streak
+  /highest-rank dates are still English-only (`MonthNames.ENGLISH_ABBREVIATED`).
+- **Settings - language** (6.51): `AppLanguageSetting` is a platform contract. Below Android 13,
+  `MainActivity` recreates the activity itself instead of Settings, and only when the locale
+  actually changed (avoids a double recreate after a phone-level language change). **iOS picks up
+  a new language only on next launch - the iOS app owes a "restart to apply" notice.**
+- **Supporter billing** (6.52): `SupporterStore` is a platform contract (plain
+  `SupporterProduct`/`SupporterPurchase`, no Play Billing types in the ViewModel). **iOS binds
+  `UnavailableSupporterStore`** - needs StoreKit or RevenueCat's `purchases-kmp` before iOS ships.
+  Errors show as a `Snackbar` instead of a `Toast` now (a null message falls back to the
+  exception's `toString()`). Verified on a production build: tiers/prices, the subscribe and
+  billing flow, upgrade/downgrade and the manage-subscription link - see §1.2.
+- **Onboarding - Google sign-in** (6.53): `rememberGoogleSignIn` is a platform contract returning
+  `Success`/`Failure`/`Cancelled`. **iOS always reports `Cancelled`** for now - a real iOS
+  implementation is still owed before ship. Verified on a release build - see §1.2.
+- **Navigation host** (6.19, 6.54): routes are a `@Serializable sealed interface` (`Route.kt`);
+  **each `@SerialName` is also the Firebase `screen_view` name and the deep-link shape** -
+  renaming one changes both. Compose Multiplatform 2.10's predictive-back transitions changed
+  from the nav host's pop transitions to the platform default; `NavHost` now sets the old 500ms
+  fades explicitly. `OnlineGoApp` takes `versionCode`/`onForceReviewPrompt`/`onTestNotification`/
+  `onLaunchBillingFlow`/`onFinish` as parameters instead of reaching for an `Activity`.
+- **App shell** (6.55): `AppViewModel`/`OnlineGoRoot` (commonMain) hold theme, onboarding flag,
+  login status, and socket connect/disconnect on resume/pause. `SystemBarsAppearance` is an
+  expect/actual - on iOS it sets the status-bar style on the root view controller (6.57).
+  WorkManager's `*_WORK_NAME` constants were kept (unlike the matching `*_PERIOD_MINUTES` ones)
+  because they're still needed to cancel work scheduled by old installs (6.18).
+  `REVIEW_PROMPT_RATED` is kept even though its only readers were deleted (6.56) -
+  `shouldPromptForReview` still reads it from existing installs. **Still Android-only by design:**
+  locale recreate below API 13, StrictMode, notification channels/WorkManager schedule,
+  `isInForeground` (read by the notification workers - still owed, see §1.2), Koin start, the
+  Crashlytics breadcrumb writer, Ktor's `SecureRandom` workaround below API 26.
+
+### 6.4 iOS app (Phase 5)
+
+- **Shell** (6.57): `iosApp/` is a UIKit app with `AppDelegate`/`SceneDelegate`, not SwiftUI.
+  The root view controller has to own `preferredStatusBarStyle`, and a SwiftUI host doesn't
+  forward it to a hosted `UIViewController`. `MainViewController(versionCode:)` (iosMain) wraps
+  `ComposeUIViewController` in a parent `OnlineGoViewController`, which `SystemBarsAppearance`
+  reaches via `LocalUIViewController.current.parentViewController`. The
+  `ComposeUIViewControllerDelegate` route is deprecated. It uses the UIScene lifecycle because Apple
+  makes it mandatory after iOS 26.
+  `Shared` is a static framework built by `embedAndSignAppleFrameworkForXcode`. `-lc++` is in
+  `OTHER_LDFLAGS` because a static framework doesn't carry the estimator `.def`'s `linkerOpts`.
+  `tutorials.json` is referenced from `app/src/main/assets`, not copied. The `.xcodeproj` uses
+  folder-synchronised groups (object version 77), so it needs Xcode 16 or later.
+  **Known build warning:** Coil 3.6.3 is built against Skiko 0.150.1 and CMP 1.13.0-alpha02 pulls
+  0.153.0. It runs, but recheck when either is upgraded.
+
+### 6.5 Toolchain
+
+- **Versions** (6.33-6.35): Kotlin 2.4.21, AGP 9.3.3, Gradle 9.7.1 - the newest patch releases
+  inside Kotlin 2.4.21's supported matrix (AGP 9.3 refuses Gradle below 9.5; AGP 9.4 is outside
+  the 2.4.21 range). KSP 2.3.12. **Material3 is pinned to 1.9.0**
+  (`composeMultiplatformMaterial3`), independent of the CMP version, so Android keeps material3
+  1.4.0 exactly as before. **CMP 1.13 is still alpha** - needed for three bugs fixed only there (a
+  `stringResource` main-thread ANR, a blocking/suspend-read deadlock, a crash on CLDR-missing
+  plural locales); move to 1.13 stable when it ships. CMP 1.13 requires `compileSdk` 37.1 and
+  `minSdk` 24 (dropped Android 6.0).
+- **`:shared` module setup** (6.22, 6.23): applies the Compose compiler plugin even though it has
+  no composables yet - without it, model classes compile as external/unstable (watch `unstable`
+  parameter counts in the compose report, not skippable totals, since strong skipping hides this).
+  Uses `com.android.kotlin.multiplatform.library`, not `com.android.library` + KMP (that
+  combination is deprecated in AGP 9, removed in AGP 10) - **it has no
+  `externalNativeBuild`/`BuildConfig`**, so the estimator's JNI glue and `CMakeLists.txt` stay in
+  `:app`.
