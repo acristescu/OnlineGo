@@ -154,6 +154,5 @@ These are still stubs, listed in `docs/KMP_MIGRATION_ASSESSMENT.md`:
 
 - Analytics, crash reporting, in-app review, notifications and background refresh.
 - Google sign-in reports "cancelled", and the Supporter screen has no store behind it.
-- HTML text shows line breaks only.
 - Local AI: the AI game screen shows an error.
 - There is no app icon yet.

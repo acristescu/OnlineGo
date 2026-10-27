@@ -128,7 +128,7 @@ Still owed - unit tests cannot reach these:
 
 | Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Estimate                      |
 |------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app (the shell passes no-op `Analytics` and `GameNotificationCanceller` to `initKoin()` since 6.57): real versions of those two, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app (the shell passes no-op `Analytics` and `GameNotificationCanceller` to `initKoin()` since 6.57): real versions of those two, a real iOS `CrashReporter`, an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
 | **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                         | done                          |
 | **5 - iOS app**                    | Shell done (6.57). Left: notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                      | 4-8 weeks, excluding local AI |
 
@@ -278,8 +278,18 @@ the iOS simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
   `LinkedHashMap`) because call sites cast to them. Room stayed at schema version 20 on purpose,
   so a stale `MoveTree` blob throws visibly instead of being silently wiped.
 - **jsoup → `fromHtml`** (6.2, 6.43): Android-only in Compose Multiplatform 1.13, behind
-  `htmlToAnnotatedString`. **The iOS `actual` is a placeholder** - line breaks only, no
-  links/bold/italic. Replace before iOS ships.
+  `htmlToAnnotatedString`. The Tsumego text is the only caller. The iOS `actual` (6.60) is a
+  small parser that copies what Android's `Html.fromHtml` does with the markup OGS sends. A scan
+  of the 50 top-rated puzzle collections (12,118 texts) found only `b`, `a href`, `br`,
+  `font color`, `u`, `i`, `s` and one `img`, with no entities. Parity details that look wrong but
+  are deliberate: **spaces and newlines collapse to one space, so only `<br>` breaks a line, as
+  on Android** (the `\n\n` in OGS texts never showed there either). `font color` uses
+  Android's `Color.getHtmlColor` names, not CSS ones, so `green` is `#00FF00`, which is hard to
+  read on a light background on both platforms. An unclosed tag runs to the end of the text, as
+  TagSoup closes it there. `<p>`/`<div>` break lines as in Android's compact mode, although no
+  puzzle uses them. `<img>` is dropped; Android leaves a stray `U+FFFC` in its place.
+  `HtmlTextTest` (iosTest) pins each of these. The whole corpus parsed with all 153 links and no
+  leftover tags, and links open in Safari.
 - **Coil 2 → 3** (6.3): `rememberAsyncImagePainter` now defaults to `Size.ORIGINAL`, so avatar
   sites use `AsyncImage` instead (silent memory regression otherwise). `processGravatarURL` rounds
   up to the CDN's 64/128/256/512 buckets instead of always asking for 512. Each app adds its own
