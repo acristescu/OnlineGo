@@ -106,6 +106,7 @@ kotlin {
     iosMain.dependencies {
       implementation(libs.sqlite.bundled)
       implementation(libs.ktor.client.darwin)
+      implementation(libs.coil.network.ktor3)
     }
 
     iosTest.dependencies {
