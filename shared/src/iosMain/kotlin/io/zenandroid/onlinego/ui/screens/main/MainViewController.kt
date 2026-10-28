@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.koin.compose.koinInject
 import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIStatusBarStyleDarkContent
 import platform.UIKit.UIStatusBarStyleLightContent
@@ -16,16 +17,18 @@ import platform.UIKit.didMoveToParentViewController
 
 fun MainViewController(versionCode: Int): UIViewController = OnlineGoViewController {
   appSession.Content {
-    OnlineGoRoot(
-      versionCode = versionCode,
-      reviewRequester = {},
-      onForceReviewPrompt = {
-        ReviewDiagnosticResult(false, listOf("In-app review is not available on iOS yet"), null)
-      },
-      onTestNotification = {},
-      onLaunchBillingFlow = { _, _ -> },
-      onFinish = {},
-    )
+    RestartOnLanguageChange(koinInject()) {
+      OnlineGoRoot(
+        versionCode = versionCode,
+        reviewRequester = {},
+        onForceReviewPrompt = {
+          ReviewDiagnosticResult(false, listOf("In-app review is not available on iOS yet"), null)
+        },
+        onTestNotification = {},
+        onLaunchBillingFlow = { _, _ -> },
+        onFinish = {},
+      )
+    }
   }
 }
 
