@@ -90,7 +90,7 @@ class OGSWebSocketService(
   private val eventListeners =
     AtomicReference(persistentMapOf<String, PersistentList<(JsonElement) -> Unit>>())
 
-  private val wsHost = "wsp.online-go.com"
+  private val wsHost = OGS_ENVIRONMENT.websocketHost
 
   private val outgoing = AtomicReference<Channel<String>?>(null)
 

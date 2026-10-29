@@ -21,8 +21,6 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-const val OGS_BASE_URL = "https://online-go.com/"
-
 private const val CSRF_HEADER = "x-csrftoken"
 
 private val OGSCsrfHeader = createClientPlugin("OGSCsrfHeader") {
@@ -37,7 +35,7 @@ private val OGSCsrfHeader = createClientPlugin("OGSCsrfHeader") {
 fun HttpClientConfig<*>.configureOGSClient(
   jsonFormat: Json,
   cookiesStorage: CookiesStorage = AcceptAllCookiesStorage(),
-  baseUrl: String = OGS_BASE_URL,
+  baseUrl: String = OGS_ENVIRONMENT.baseUrl,
 ) {
   expectSuccess = true
   followRedirects = false

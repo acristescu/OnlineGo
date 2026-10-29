@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.data.ogs.Glicko2HistoryConverterFactory
 import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.ogs.OGS_BASE_URL
+import io.zenandroid.onlinego.data.ogs.OGS_ENVIRONMENT
 import io.zenandroid.onlinego.data.ogs.configureOGSClient
 import io.zenandroid.onlinego.data.ogs.createOGSRestAPI
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
@@ -68,7 +68,7 @@ val sharedModule = module {
   single {
     OGSCookieStore(
       persistence = get(),
-      host = Url(OGS_BASE_URL).host,
+      host = Url(OGS_ENVIRONMENT.baseUrl).host,
     )
   }
 
@@ -77,7 +77,7 @@ val sharedModule = module {
       configureOGSClient(
         jsonFormat = get(),
         cookiesStorage = get<OGSCookieStore>(),
-        baseUrl = OGS_BASE_URL,
+        baseUrl = OGS_ENVIRONMENT.baseUrl,
       )
       install(WebSockets) {
         pingIntervalMillis = 15_000
@@ -87,7 +87,7 @@ val sharedModule = module {
 
   single {
     Ktorfit.Builder()
-      .baseUrl(OGS_BASE_URL)
+      .baseUrl(OGS_ENVIRONMENT.baseUrl)
       .httpClient(get<HttpClient>())
       .converterFactories(Glicko2HistoryConverterFactory)
       .build()

@@ -44,7 +44,7 @@ import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.ogs.OGS_BASE_URL
+import io.zenandroid.onlinego.data.ogs.OGS_ENVIRONMENT
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
@@ -979,8 +979,8 @@ class GameViewModel(
         }
       }
 
-      OpenInBrowser -> _events.tryEmit(OpenURL(OGS_BASE_URL + "game/${gameState?.id}"))
-      DownloadSGF -> _events.tryEmit(OpenURL(OGS_BASE_URL + "api/v1/games/${gameState?.id}/sgf"))
+      OpenInBrowser -> _events.tryEmit(OpenURL(OGS_ENVIRONMENT.baseUrl + "game/${gameState?.id}"))
+      DownloadSGF -> _events.tryEmit(OpenURL(OGS_ENVIRONMENT.baseUrl + "api/v1/games/${gameState?.id}/sgf"))
       BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
       WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
       PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null
