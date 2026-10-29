@@ -7,7 +7,8 @@ end of every phase.**
 **Status.** Phases 0-4 are done and shipped (`origin/release`, tag `beta_b1064`): the data layer,
 all screens, navigation and the app shell live in `:shared/commonMain`, and `:app` is only the
 Android shell. Phase 5 (the iOS app) has started: `iosApp/` runs the shared UI in the Simulator
-with in-process logout, remote images, puzzle HTML and in-app language switching. The remaining
+with in-process logout, remote images, puzzle HTML, in-app language switching and the review
+prompt. The remaining
 platform bindings are stubbed. `docs/IOS_DEVELOPMENT.md` covers building and running it.
 
 Slice numbers (6.x) in commit messages map to the full write-ups in earlier versions of this file:
@@ -25,8 +26,8 @@ Slice numbers (6.x) in commit messages map to the full write-ups in earlier vers
   Turn notifications will be slower than Android's 15-minute poll without APNs, which OGS doesn't
   offer.
 - **Stubbed bindings**: `Analytics` and `GameNotificationCanceller` (no-ops from Swift),
-  `CrashReporter` (logs only), `ReviewRequester` (needs `SKStoreReviewController`),
-  `SupporterStore` (StoreKit or RevenueCat, plus iOS wording for the supporter copy), Google
+  `CrashReporter` (logs only), `SupporterStore` (StoreKit or RevenueCat, plus iOS wording for the
+  supporter copy), Google
   sign-in (always reports "cancelled").
 - **App Store plumbing**, and a macOS stack on Bitrise.
 

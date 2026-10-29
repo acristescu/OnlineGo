@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.ui.screens.main
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
-import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
+import io.zenandroid.onlinego.utils.IosReviewPromptManager
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.koin.compose.koinInject
 import platform.UIKit.UIStatusBarStyle
@@ -17,13 +17,13 @@ import platform.UIKit.didMoveToParentViewController
 
 fun MainViewController(versionCode: Int): UIViewController = OnlineGoViewController {
   appSession.Content {
+    val host = checkNotNull(LocalOnlineGoViewController.current)
+    val reviewPromptManager = koinInject<IosReviewPromptManager>()
     RestartOnLanguageChange(koinInject()) {
       OnlineGoRoot(
         versionCode = versionCode,
-        reviewRequester = {},
-        onForceReviewPrompt = {
-          ReviewDiagnosticResult(false, listOf("In-app review is not available on iOS yet"), null)
-        },
+        reviewRequester = { reviewPromptManager.requestReview(host) },
+        onForceReviewPrompt = { reviewPromptManager.forceShowReviewPrompt(host) },
         onTestNotification = {},
         onLaunchBillingFlow = { _, _ -> },
         onFinish = {},

@@ -15,6 +15,7 @@ import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
 import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
 import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.AppLanguageSetting
+import io.zenandroid.onlinego.utils.IosReviewPromptManager
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.UserDefaultsAppLanguageSetting
 import io.zenandroid.onlinego.utils.UserDefaultsKeyValueStore
@@ -43,6 +44,7 @@ val iosPlatformModule = module {
   single<AnalysisEngine> { UnavailableAnalysisEngine }
   single<AppLanguageSetting> { UserDefaultsAppLanguageSetting() }
   single<SupporterStore> { UnavailableSupporterStore }
+  single { IosReviewPromptManager(get(), get()) }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())

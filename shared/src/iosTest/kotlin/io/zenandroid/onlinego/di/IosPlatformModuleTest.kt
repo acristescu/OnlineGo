@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
+import io.zenandroid.onlinego.utils.IosReviewPromptManager
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelAndJoin
@@ -57,6 +58,7 @@ class IosPlatformModuleTest {
     koin.get<PersistenceManager>()
     koin.get<SettingsRepository>()
     koin.get<ReviewPromptRepository>()
+    koin.get<IosReviewPromptManager>()
     koin.get<PuzzleDao>().getPuzzleCollectionCount()
     koin.get<DataStore<Preferences>>(SETTINGS_DATA_STORE).data.first()
     koin.get<DataStore<Preferences>>(REVIEW_PROMPT_DATA_STORE).data.first()
