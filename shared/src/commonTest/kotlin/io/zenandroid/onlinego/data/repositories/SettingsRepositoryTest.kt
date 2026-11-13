@@ -42,6 +42,19 @@ class SettingsRepositoryTest {
   }
 
   @Test
+  fun clockSoundsAreEnabledByDefaultAndIndependentOfStoneSounds() = runTest {
+    val repository = newRepository()
+
+    assertEquals(true, repository.clockSoundFlow.first())
+    repository.setSound(false)
+    assertEquals(true, repository.clockSoundFlow.first())
+    repository.setClockSound(false)
+    repository.setSound(true)
+    assertEquals(false, repository.clockSoundFlow.first())
+    assertEquals(true, repository.soundFlow.first())
+  }
+
+  @Test
   fun aFaceToFaceGameIsStoredAsOneEdit() = runTest {
     val repository = newRepository()
 

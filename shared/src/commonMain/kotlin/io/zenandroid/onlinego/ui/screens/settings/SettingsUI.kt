@@ -96,6 +96,7 @@ import io.zenandroid.onlinego.resources.settings_become_a_supporter
 import io.zenandroid.onlinego.resources.settings_become_a_supporter_description
 import io.zenandroid.onlinego.resources.settings_board_style
 import io.zenandroid.onlinego.resources.settings_build_version
+import io.zenandroid.onlinego.resources.settings_clock_sounds
 import io.zenandroid.onlinego.resources.settings_delete_account
 import io.zenandroid.onlinego.resources.settings_delete_account_cancel
 import io.zenandroid.onlinego.resources.settings_delete_account_confirm
@@ -149,6 +150,7 @@ import io.zenandroid.onlinego.ui.composables.rememberOpenNotificationSettings
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ClockSoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
@@ -495,6 +497,12 @@ private fun SettingsContent(
           checkbox = true,
           checked = userSettings.soundEnabled,
           onClick = { onAction(SoundsClicked) })
+        SettingsRow(
+          title = stringResource(Res.string.settings_clock_sounds),
+          icon = Icons.AutoMirrored.Filled.VolumeUp,
+          checkbox = true,
+          checked = userSettings.clockSoundEnabled,
+          onClick = { onAction(ClockSoundsClicked) })
       }
     }
     Section(title = stringResource(Res.string.settings_section_appearance)) {

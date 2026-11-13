@@ -16,6 +16,7 @@ import io.zenandroid.onlinego.ui.composables.UiText
 import io.zenandroid.onlinego.ui.composables.literalText
 import io.zenandroid.onlinego.ui.composables.uiText
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ClockSoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
@@ -58,6 +59,8 @@ class SettingsViewModel(
       showCoordinates = showCoordinates,
       soundEnabled = sound
     )
+  }.combine(settingsRepository.clockSoundFlow) { settings, clockSound ->
+    settings.copy(clockSoundEnabled = clockSound)
   }.stateIn(
     viewModelScope,
     SharingStarted.WhileSubscribed(5_000),
@@ -88,6 +91,12 @@ class SettingsViewModel(
       SoundsClicked -> {
         viewModelScope.launch {
           settingsRepository.setSound(!userSettings.value.soundEnabled)
+        }
+      }
+
+      ClockSoundsClicked -> {
+        viewModelScope.launch {
+          settingsRepository.setClockSound(!userSettings.value.clockSoundEnabled)
         }
       }
 
@@ -187,6 +196,7 @@ sealed interface SettingsAction {
   data object NotificationsClicked : SettingsAction
   data class LanguageClicked(val language: AppLanguage) : SettingsAction
   data object SoundsClicked : SettingsAction
+  data object ClockSoundsClicked : SettingsAction
   data class ThemeClicked(val theme: AppTheme) : SettingsAction
   data class BoardThemeClicked(val boardTheme: BoardTheme) : SettingsAction
   data object CoordinatesClicked : SettingsAction
