@@ -140,8 +140,10 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
+import io.zenandroid.onlinego.utils.ClockTick
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.PlayerClock
+import io.zenandroid.onlinego.utils.clockUpdateDelay
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -153,11 +155,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
@@ -223,6 +227,12 @@ class GameViewModel(
   private var isInBackground = false
 
   private var timerJob: Job? = null
+  private val clockTick = ClockTick()
+  private val clockSoundEnabled = settingsRepository.clockSoundFlow.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.Eagerly,
+    initialValue = settingsRepository.cachedUserSettings.clockSoundEnabled,
+  )
 
   lateinit var state: StateFlow<GameState>
   private val _events = MutableSharedFlow<Event?>(
@@ -721,6 +731,17 @@ class GameViewModel(
               game.timeControl,
             )
 
+            val running = game.phase == Phase.PLAY && clock.startMode != true &&
+              game.pausedSince == null && clock.newPausedState != true && !game.pauseControl.isPaused()
+            val activeTimer = if (whiteToMove) whiteTimer else blackTimer
+            if (clockTick.update(
+                turn = clock.lastMove to game.playerToMoveId,
+                clock = activeTimer,
+                running = running && (whiteToMove || blackToMove) && clockSoundEnabled.value,
+              )) {
+              _events.emit(Event.PlayClockSound)
+            }
+
             var timeLeft: Long? = null
 
             if (clock.startMode == true) {
@@ -767,24 +788,22 @@ class GameViewModel(
                     whiteStartTimer = null,
                     blackStartTimer = null,
                     timeLeft = timeLeft!!,
+                    whiteTimeoutWarning = game.phase == Phase.PLAY && whiteTimer.timeoutWarning,
+                    blackTimeoutWarning = game.phase == Phase.PLAY && blackTimer.timeoutWarning,
                   )
               }
             }
-            if (game.pauseControl.isPaused()) {
+            if (game.pauseControl.isPaused() || game.pausedSince != null || clock.newPausedState == true) {
               return@launch
             }
-            delayUntilNextUpdate = timeLeft?.let {
-              when (it) {
-                in 0 until 2_000 -> it % 101
-                in 2_000 until 3_600_000 -> it % 1_001
-                in 3_600_000 until 24 * 3_600_000 -> it % 60_001
-                else -> it % (12 * 60_000 + 1)
-              }
-            } ?: 1000
+            delayUntilNextUpdate = minOf(
+              timeLeft?.let(::clockUpdateDelay) ?: 1000,
+              clockUpdateDelay(activeTimer.timeUntilTimeout),
+            )
           }
         }
 
-        delay(delayUntilNextUpdate.coerceAtLeast(50))
+        delay(delayUntilNextUpdate)
       }
     }
   }
@@ -1083,6 +1102,7 @@ class GameViewModel(
   fun onPause() {
     isInBackground = true
     timerJob?.cancel()
+    clockTick.reset()
   }
 
   fun onResume() {
@@ -1351,6 +1371,8 @@ data class TimerDetails(
   val whiteStartTimer: Long?,
   val blackStartTimer: Long?,
   val timeLeft: Long,
+  val whiteTimeoutWarning: Boolean = false,
+  val blackTimeoutWarning: Boolean = false,
 )
 
 data class PendingMove(
@@ -1361,6 +1383,7 @@ data class PendingMove(
 
 sealed interface Event {
   object PlayStoneSound : Event
+  object PlayClockSound : Event
   class NavigateToGame(val game: Game) : Event
   class OpenURL(val url: String) : Event
 }

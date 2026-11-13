@@ -10,4 +10,5 @@ data class UserSettings(
   val showCoordinates: Boolean = false,
   val soundEnabled: Boolean = true,
   val graphByGames: Boolean = false,
+  val clockSoundEnabled: Boolean = true,
 )

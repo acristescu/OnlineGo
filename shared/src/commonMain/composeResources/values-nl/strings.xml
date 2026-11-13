@@ -315,6 +315,7 @@
     <string name="settings_section_notifications">Meldingen</string>
     <string name="settings_system_notifications">Systeemmeldingen</string>
     <string name="settings_stone_sounds">Steengeluiden</string>
+    <string name="settings_clock_sounds">Klokgeluiden bij tijdnood</string>
     <string name="settings_section_appearance">Weergave</string>
     <string name="settings_theme">Thema</string>
     <string name="settings_board_style">Bordstijl</string>

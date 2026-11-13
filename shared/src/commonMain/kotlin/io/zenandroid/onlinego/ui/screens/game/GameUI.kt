@@ -206,6 +206,7 @@ fun GameScreen(
   onNavigateToGameScreen: (Game) -> Unit,
 ) {
   val playStoneSound by rememberUpdatedState(rememberStoneSound())
+  val playClockSound by rememberUpdatedState(rememberClockSound())
   val uriHandler = LocalUriHandler.current
 
   val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
@@ -232,6 +233,7 @@ fun GameScreen(
     viewModel.events.collect { event ->
       when (event) {
         Event.PlayStoneSound -> playStoneSound()
+        Event.PlayClockSound -> playClockSound()
         is NavigateToGame -> onNavigateToGameScreen(event.game)
         is OpenURL -> uriHandler.openUri(event.url)
 
@@ -557,6 +559,7 @@ private fun BlackPlayerCard(
     timerMain = state.timerDetails?.blackClock?.let { clockText(it.timeLeft) } ?: "",
     timerExtra = state.timerDetails?.blackClock?.period?.let { clockPeriodText(it) } ?: "",
     timerPercent = state.timerDetails?.blackPercentage ?: 0,
+    timerWarning = state.timerDetails?.blackTimeoutWarning == true,
     timerFaded = state.timerDetails?.blackFaded ?: true,
     timerShown = state.showTimers,
     onUserClicked = { onUserAction(BlackPlayerClicked) },
@@ -576,6 +579,7 @@ private fun WhitePlayerCard(
     timerMain = state.timerDetails?.whiteClock?.let { clockText(it.timeLeft) } ?: "",
     timerExtra = state.timerDetails?.whiteClock?.period?.let { clockPeriodText(it) } ?: "",
     timerPercent = state.timerDetails?.whitePercentage ?: 0,
+    timerWarning = state.timerDetails?.whiteTimeoutWarning == true,
     timerFaded = state.timerDetails?.whiteFaded ?: true,
     timerShown = state.showTimers,
     onUserClicked = { onUserAction(WhitePlayerClicked) },
