@@ -331,6 +331,7 @@
     <string name="settings_section_debug">Depuració</string>
     <string name="settings_socket_debug">Depuració del socket</string>
     <string name="settings_review_prompt">Revisió de la partida</string>
+    <string name="settings_test_notification">Notificació de prova</string>
     <string name="settings_build_version">Núm. de compilació %1$d</string>
     <string name="settings_theme_system_default">Configuració predeterminada del sistema</string>
     <string name="settings_theme_light">Clar</string>
@@ -412,7 +413,6 @@
         <item quantity="one">%1$d derrota</item>
         <item quantity="other">%1$d derrotes</item>
     </plurals>
-    <string name="stats_no_ranked_games">No s'ha registrat cap partida puntuable</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1 any</string>
