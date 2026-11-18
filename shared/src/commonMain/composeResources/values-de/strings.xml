@@ -12,7 +12,7 @@
     <string name="ai_game_chat_ok_your_turn">OK, Du bist an der Reihe</string>
     <string name="ai_game_chat_calculating_territory">OK, berechne aktuelles Gebiet…</string>
     <string name="ai_game_chat_territories">Ich denke, das sind die Gebiete</string>
-    <string name="ai_game_chat_im_thinking">Ich denke nach…</string>
+    <string name="ai_game_chat_im_thinking">Ich denke nach …</string>
     <string name="ai_game_chat_your_turn">Du bist an der Reihe</string>
     <string name="ai_game_chat_game_over_ai_won">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Das Endergebnis lautet Schwarz %1$s und Weiß %2$s. Sieht so aus, als hab ich gewonnen.</string>
     <string name="ai_game_chat_game_over_player_won">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Das Endergebnis lautet Schwarz %1$s und Weiß %2$s. Glückwunsch, du hast mich geschlagen.</string>
@@ -384,7 +384,6 @@
         <item quantity="one">%1$d Niederlage</item>
         <item quantity="other">%1$d Niederlagen</item>
     </plurals>
-    <string name="stats_no_ranked_games">Keine gewerteten Spiele verzeichnet</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1J</string>
@@ -458,7 +457,7 @@
     <string name="new_challenge_ranked">Gewertet</string>
     <string name="new_challenge_private">Privat</string>
     <string name="new_challenge_send">Herausforderung senden</string>
-    <string name="new_challenge_select_opponent">[Gegner:in auswählen]</string>
+    <string name="new_challenge_select_opponent">[Gegner auswählen]</string>
     <string name="select_opponent_tab_bot">Bot</string>
     <string name="select_opponent_tab_recent">Letzte</string>
     <string name="select_opponent_bots_title">Online-Bots</string>
