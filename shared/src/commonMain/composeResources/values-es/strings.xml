@@ -331,6 +331,7 @@
     <string name="settings_section_debug">Depuración</string>
     <string name="settings_socket_debug">Socket Debug</string>
     <string name="settings_review_prompt">Aviso de revisión</string>
+    <string name="settings_test_notification">Notificación de pruebas</string>
     <string name="settings_build_version">Build no. %1$d</string>
     <string name="settings_theme_system_default">Sistema por defecto</string>
     <string name="settings_theme_light">Claro</string>
@@ -412,7 +413,6 @@
         <item quantity="one">%1$d derrota</item>
         <item quantity="other">%1$d derrotas</item>
     </plurals>
-    <string name="stats_no_ranked_games">No hay partidas clasificadas en el registro</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1Y</string>
@@ -706,7 +706,7 @@
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">… y este es el medio. Por supuesto, estos solo son nombres que usamos para la orientación y no hay reglas especiales para ninguno de estos.</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">El objetivo del juego es cercar más territorio que tu oponente. Como tú y tu oponente os turnáis colocando piedras, ambos obtendréis la misma cantidad de piedras. Por lo tanto, el ganador es el jugador que utiliza sus piedras de forma más eficiente.\n\n¿Dónde es más eficiente rodear el territorio? ¿En las esquinas, en los lados o en el medio?</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">Cada uno de los grupos debajo rodea exactamente 9 espacios de modo que cada uno gana 9 puntos. Sin embargo, el que se encuentra en la esquina requiere solo 6 piedras, el que se encuentra en el lado 9 mientras que el que se encuentra en el centro requiere 12!</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Por lo tanto, los jugadores sabios jugarán en las esquinas primero y, solo</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Por tanto, los jugadores sensatos jugarán primero en las esquinas y, solo una vez que estas estén ocupadas, pasarán a los lados, dejando el centro para el final.</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">Aquí están los primeros 20 movimientos de un juego real jugado entre dos jugadores profesionales.</string>
     <string name="tutorial_advanced_themiddlegame_name">El juego medio</string>
     <string name="tutorial_advanced_themiddlegame_middlegame1_text">El negro está bloqueado en la esquina inferior izquierda. El grupo estará rodeado si no haces nada.</string>
