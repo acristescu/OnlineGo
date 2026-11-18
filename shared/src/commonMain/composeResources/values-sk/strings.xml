@@ -351,6 +351,7 @@
     <string name="settings_section_debug">Debug</string>
     <string name="settings_socket_debug">Socket Debug</string>
     <string name="settings_review_prompt">Skontrolovať prompt</string>
+    <string name="settings_test_notification">Test upozornenia</string>
     <string name="settings_build_version">Build číslo %1$d</string>
     <string name="settings_theme_system_default">Podľa systému</string>
     <string name="settings_theme_light">Svetlá</string>
