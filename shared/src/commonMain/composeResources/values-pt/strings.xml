@@ -412,7 +412,6 @@
         <item quantity="one">%1$d derrota</item>
         <item quantity="other">%1$d derrotas</item>
     </plurals>
-    <string name="stats_no_ranked_games">Nenhuma partida ranqueada no registo</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1A</string>
