@@ -6,6 +6,7 @@ import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.PushRegistrationRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.mygames.composables.HEADER_AVATAR_SIZE
@@ -22,6 +23,7 @@ fun prewarmApp(context: PlatformContext, density: Float) {
   try {
     getKoin().get<OGSRestService>()
     getKoin().get<OGSWebSocketService>()
+    getKoin().get<PushRegistrationRepository>()
     preloadOwnAvatar(context, density)
     Logger.d(tag = "AppInit") { "Network stack pre-warmed" }
   } catch (e: Exception) {

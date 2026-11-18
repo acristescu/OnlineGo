@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SharedPrefsCookiePersistence
 import io.zenandroid.onlinego.data.repositories.AppDataEraser
+import io.zenandroid.onlinego.data.repositories.PushTokenProvider
 import io.zenandroid.onlinego.data.repositories.reviewPromptDataStore
 import io.zenandroid.onlinego.data.repositories.settingsDataStore
 import io.zenandroid.onlinego.data.repositories.whatsNewDataStore
@@ -21,6 +22,7 @@ import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.FirebaseAppAnalytics
+import io.zenandroid.onlinego.utils.FirebasePushTokenProvider
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.SharedPreferencesKeyValueStore
 import okhttp3.OkHttpClient
@@ -41,6 +43,7 @@ fun androidPlatformModule(logHttpBodies: Boolean) = module {
 
   single<Analytics> { FirebaseAppAnalytics(FirebaseAnalytics.getInstance(get())) }
   single<AppLanguageSetting> { AppLocaleManager(get()) }
+  single<PushTokenProvider> { FirebasePushTokenProvider() }
   single {
     val context = get<Context>()
     AppDataEraser { context.getSystemService<ActivityManager>()?.clearApplicationUserData() }

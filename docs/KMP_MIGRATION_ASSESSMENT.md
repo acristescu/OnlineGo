@@ -21,18 +21,27 @@ Slice numbers (6.x) in commit messages map to the full write-ups in earlier vers
 
 ### 1.1 iOS app (Phase 5) - 4-8 weeks, excluding local AI
 
-- **Notifications**: OGS push (1.2) replaces background polling, so no `BGAppRefreshTask` in v1.
+- **Notifications**: OGS push (1.2, slice 2) replaces background polling, so no
+  `BGAppRefreshTask` in v1.
 - **Stubbed bindings**: `Analytics` and `GameNotificationCanceller` (no-ops from Swift),
   `CrashReporter` (logs only, see 1.3), `SupporterStore` (StoreKit or RevenueCat, plus iOS wording
   for the supporter copy), Google sign-in (always reports "cancelled").
 - **App Store plumbing**, and a macOS stack on Bitrise.
 
-### 1.2 Push notifications (OGS push API) - about a week, both platforms
+### 1.2 Push notifications (OGS push API) - Android first, then iOS
 
 OGS pushes its own notifications to third-party apps through FCM or APNs
 (`online-go.com/docs/push-notifications.md`). This replaces polling on iOS and makes Android
 notifications arrive in seconds instead of on the 15-minute WorkManager poll, with far fewer
 wake-ups.
+
+Two slices, both on FCM:
+
+1. **Android (3-4 days)**: the shared registration code plus the Android glue. Android is the
+   shipping app, so it gets the benefit first, and it is how we learn OGS's behaviour on beta
+   (types, status codes, timing) on one platform.
+2. **iOS (2-3 days, after Android is proven on beta)**: only Xcode/Firebase setup, a token
+   provider and tap handling; the shared code already exists and has been exercised.
 
 **How OGS works**
 
@@ -51,8 +60,9 @@ wake-ups.
 - A push goes out about 10 seconds after a notification is created, if it is still unread.
   `yourMove` is only pushed while the player isn't connected to OGS, so our foreground websocket
   suppresses it. `yourMove` and `timecop` are high priority, replace the previous push for the
-  same game and expire when the clock runs out. Players choose which types are pushed in OGS
-  settings.
+  same game and expire when the clock runs out. Players can switch types off under Settings →
+  Notifications (a Mobile column next to Email); all are on by default except "My streak is at
+  risk", so players never need to visit the website.
 - Data keys: `type` (`yourMove`, `challenge`, `gameEnded`, `mail`, ...), `notification_id`,
   `game_id`, and `notification` (the full notification as JSON, when small enough). The title is
   OGS's localized one-line summary ("It's your move: alice vs bob").
@@ -76,30 +86,41 @@ step is a build-time server switch (beta is needed rarely, so no runtime selecto
 - Each server needs its own OAuth application and its own push credentials on its `/developer`
   page; the Firebase project is shared.
 
-**Shared code**: register/unregister in `OGSRestAPI`, plus a small repository that registers on
-login, launch and token change and unregisters before logout. Platforms supply only the token and
-registration parameters. `UserSessionRepository.logOut()` must unregister before
-`appDataEraser.clearAppData()` clears the cookies. The 401 auto-logout in `CheckNotificationsTask`
-can't unregister because the session is already dead; OGS drops the device on the next
+**Slice 1, shared code** (implemented, awaiting on-device testing on beta):
+`OGSRestAPI.registerPushDevice`/`unregisterPushDevice`, the push `client_id` in `OgsEnvironment`,
+and `PushRegistrationRepository`, which registers for each logged-in user (launch and login, via
+`loginStatus`; resolved in `prewarmApp`) and on token change. Platforms supply only a
+`PushTokenProvider` (token plus `fcm_message_type`); iOS binds "no token" until slice 2.
+Registration failures are logged and ignored, so production keeps working on the poll until OGS
+ships push there. `UserSessionRepository.logOut()` unregisters (3-second timeout) before
+`appDataEraser.clearAppData()` clears the cookies (`LogoutUnregistersPushTest`). The 401
+auto-logout can't unregister because the session is already dead; OGS drops the device on the next
 registration or after 90 days.
 
-**Android: FCM with `fcm_message_type: "data"`**
+**Slice 1, Android: FCM with `fcm_message_type: "data"`** (implemented)
 
 - Our notifications are rich (board bitmap, per-speed channels, countdown, group summary,
   cancelling a stale "your move") in `NotificationUtils`. `notification` messages are drawn by the
   system while the app is in the background and would bypass all of that. `data` messages always
   reach `onMessageReceived` and are never collapsed or throttled.
-- `onMessageReceived` enqueues expedited one-off work that runs the existing
-  `CheckNotificationsTask`. The handler's ~10-second window is too short for a refresh plus board
-  rendering. The diff against `GameDao`'s stored notifications already prevents duplicates with
-  the poll.
-- Keep `SynchronizeGamesWork` as a fallback and lengthen its period (1-6 hours) once push is proven.
-- Needs `firebase-messaging` (the Firebase BOM is already there) and a `FirebaseMessagingService`
-  in `:app`.
+- `OgsMessagingService.onMessageReceived`: for `yourMove`, `timecop`, `gameEnded` and `challenge`
+  it runs `CheckNotificationsTask` directly (8-second timeout; on timeout the poll catches up). The
+  diff against `GameDao`'s stored notifications prevents duplicates with the poll.
+- Every other type (friend requests, group news/invitations/join requests, tournament
+  invitations/start/finish, vacation, streak, mail) gets a plain notification from the push's
+  `title`/`body` on the "Other notifications" channel, replaced by `tag` when OGS sends one.
+- `SynchronizeGamesWork` stays at 15 minutes as the fallback; lengthen it (1-6 hours) once push
+  is proven.
 - Risk: FCM lowers the priority of high-priority data messages that don't lead to a visible
   notification. That only happens when our diff decides there is nothing new.
+- Firebase config: the contributor placeholder now lives at `app/google-services.placeholder.json`
+  and the build copies it to the gitignored `app/src/debug/google-services.json` only when the real
+  `app/google-services.json` is missing. Debug builds on the owner's machine and on CI use the real
+  project (analytics and Crashlytics collection stay off in debug); release builds without a real
+  config still fail.
 
-**iOS: FCM with `fcm_message_type: "notification"`** (see 1.3 for the APNs-direct alternative)
+**Slice 2, iOS: FCM with `fcm_message_type: "notification"`** (see 1.3 for the APNs-direct
+alternative)
 
 - Pushes are alerts that iOS shows itself while the app is in the background; no app code runs.
   Data-only messages would be throttled silent pushes, so iOS must not use `data`.
@@ -110,13 +131,23 @@ registration or after 90 days.
 - Later: pushes carry `mutable-content`, so a Notification Service Extension could add a board
   image. It runs as a separate process with a tight memory limit, so it is out of scope for v1.
 
-**Owner setup**: add the iOS app to the existing Firebase project and upload the APNs `.p8` key to
-Firebase (restricted to the bundle ID). On beta now, and on production at rollout: create the OAuth
-application and upload the service account JSON on that server's `/developer` page.
+- Project setup: a development team in Xcode (paid Apple Developer membership), the Push
+  Notifications capability and Background Modes → Remote notifications, `FirebaseMessaging` via
+  Swift Package Manager, and a gitignored `GoogleService-Info.plist`.
+- Owner setup: add the iOS app to the Firebase project and upload an APNs `.p8` key to Firebase
+  (restricted to the bundle ID). OGS needs nothing new; the FCM credentials from slice 1 cover iOS.
+- `PushRegistrationRepository` is resolved in `prewarmApp`, which runs once per process. The iOS
+  session restart after logout (`initKoin` again) must resolve it too, or a login after logout
+  won't register.
+- Test on a real device.
+
+**Production rollout** (once OGS ships push to production): create a new key for the `ogs-push`
+service account and upload it on `online-go.com/developer` under the existing OAuth application,
+whose `client_id` is already in `OgsEnvironment`.
 
 **To check on beta**
 
-- The full list of `type` values.
+- The exact `type` strings for each row of the Settings → Notifications list.
 - Status codes and bodies for the `push_devices` POST and DELETE.
 - Whether the title follows the account's language.
 - Nothing is pushed when it stops being our move, so a "your move" notification stays visible

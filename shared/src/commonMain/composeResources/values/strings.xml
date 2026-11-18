@@ -264,15 +264,7 @@
     <string name="whats_new_open_source">Sente is open source, built by volunteers.</string>
     <string name="whats_new_support_project">Support the project</string>
     <string-array name="whats_new_changelog" translatable="false">
-        <item>✨ New localization system! We currently support English, Romanian, German, Catalan, Spanish, Dutch, French, Slovak, and Portuguese. Check out the link below to help us bring Sente to even more languages.</item>
-        <item>🤖 Adjustable AI Difficulty: KataGo plays at a fierce 4–5 Dan by default, but you can now adjust its difficulty so us mere mortals stand a chance!</item>
-        <item>🎨 Fresh New Look: Enjoy a modern edge-to-edge UI featuring an intuitive floating collapsible bottom navigation bar.</item>
-        <item>🏴󠁥󠁥󠁳󠁣󠁴󠁿 Sente now speaks Catalan! Moltes gràcies to our volunteer translator Enric.</item>
-        <item>🇪🇸 Spanish language support has landed! A big thank you to our community contributors for making it happen.</item>
-        <item>🇳🇱 Sente now speaks Dutch! Hartelijk bedankt to our community translators for making it happen.</item>
-        <item>🇫🇷 Sente now speaks French! Merci beaucoup to our community translators for making it happen.</item>
-        <item>🇸🇰 Sente now speaks Slovak! Ďakujeme to our volunteer translator Ján.</item>
-        <item>🇵🇹 Sente now speaks Portuguese! Muito obrigado to our volunteer translator GoPopz.</item>
+        <item>⚡ Near-instant notifications! Sente now uses OGS's brand new push notification system, so when it's your move you'll know within seconds instead of waiting up to 15 minutes. A huge thank you to anoek for enabling this on OGS!</item>
     </string-array>
     <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
     <string name="settings_delete_account_wrong_password">Wrong password</string>
@@ -319,6 +311,7 @@
     <string name="notification_channel_your_turn">Your Turn</string>
     <string name="notification_channel_challenges">Challenges</string>
     <string name="notification_channel_logout">Logout</string>
+    <string name="notification_channel_other">Other notifications</string>
     <string name="settings_become_a_supporter">Become a supporter</string>
     <string name="settings_become_a_supporter_description">Become a supporter</string>
     <string name="settings_section_language">Language</string>

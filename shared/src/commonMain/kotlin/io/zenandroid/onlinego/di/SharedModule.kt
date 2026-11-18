@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
+import io.zenandroid.onlinego.data.repositories.PushRegistrationRepository
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
@@ -132,6 +133,7 @@ val sharedModule = module {
   singleOf(::ClockDriftRepository)
   singleOf(::SocketDebugRepository)
   singleOf(::UserSessionRepository)
+  singleOf(::PushRegistrationRepository)
   singleOf(::TutorialsRepository)
   singleOf(::PersistenceManager)
   single { SettingsRepository(get(SETTINGS_DATA_STORE), get()) }

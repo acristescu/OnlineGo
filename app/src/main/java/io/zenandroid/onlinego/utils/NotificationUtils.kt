@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.utils
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -24,6 +25,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.notification_challenge_text
 import io.zenandroid.onlinego.resources.notification_challenge_title
+import io.zenandroid.onlinego.resources.notification_channel_other
 import io.zenandroid.onlinego.resources.notification_game_ended
 import io.zenandroid.onlinego.resources.notification_games_require_attention
 import io.zenandroid.onlinego.resources.notification_inbox_versus
@@ -44,6 +46,8 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 private const val NOTIFICATION_ID = 0
+private const val SERVER_NOTIFICATION_ID = 1
+private const val SERVER_NOTIFICATIONS_CHANNEL = "ogs_notifications"
 
 /**
  * Created by alex on 07/03/2018.
@@ -364,6 +368,46 @@ class NotificationUtils(
         }
         setStyle(inboxStyle)
         return this
+    }
+
+    suspend fun notifyServerNotification(title: String, body: String?, tag: String) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    SERVER_NOTIFICATIONS_CHANNEL,
+                    getString(Res.string.notification_channel_other),
+                    NotificationManager.IMPORTANCE_LOW
+                )
+            )
+        }
+        val notificationIntent =
+            context.packageManager.getLaunchIntentForPackage(context.packageName)!!
+        notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            notificationIntent,
+            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+        )
+        val notification =
+            NotificationCompat.Builder(context, SERVER_NOTIFICATIONS_CHANNEL)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_notification_go_board)
+                .setColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.colorTextSecondary,
+                        null
+                    )
+                )
+                .setStyle(NotificationCompat.BigTextStyle())
+                .setAutoCancel(true)
+                .build()
+        notificationManager.notify(tag, SERVER_NOTIFICATION_ID, notification)
     }
 
     suspend fun notifyLogout() {

@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.billing.UnavailableSupporterStore
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
+import io.zenandroid.onlinego.data.repositories.PushTokenProvider
 import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
 import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.AppLanguageSetting
@@ -44,6 +45,7 @@ val iosPlatformModule = module {
   single<AnalysisEngine> { UnavailableAnalysisEngine }
   single<AppLanguageSetting> { UserDefaultsAppLanguageSetting() }
   single<SupporterStore> { UnavailableSupporterStore }
+  single { PushTokenProvider { null } }
   single { IosReviewPromptManager(get(), get()) }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))

@@ -31,6 +31,7 @@ import io.zenandroid.onlinego.data.model.ogs.OmniSearchResponse
 import io.zenandroid.onlinego.data.model.ogs.Overview
 import io.zenandroid.onlinego.data.model.ogs.PagedResult
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
+import io.zenandroid.onlinego.data.model.ogs.PushDeviceRequest
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
@@ -190,6 +191,12 @@ interface OGSRestAPI {
     @Path("id") id: Int,
     @Body body: AcknowledgeWarningRequest
   ): Warning
+
+  @POST("api/v1/me/push_devices")
+  suspend fun registerPushDevice(@Body request: PushDeviceRequest)
+
+  @DELETE("api/v1/me/push_devices")
+  suspend fun unregisterPushDevice(@Query("token") token: String)
 }
 
 /*

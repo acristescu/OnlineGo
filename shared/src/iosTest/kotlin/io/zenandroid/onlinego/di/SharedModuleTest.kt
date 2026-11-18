@@ -34,6 +34,8 @@ import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
+import io.zenandroid.onlinego.data.repositories.PushRegistrationRepository
+import io.zenandroid.onlinego.data.repositories.PushTokenProvider
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
@@ -108,6 +110,7 @@ class SharedModuleTest {
     koin.get<ClockDriftRepository>()
     koin.get<SocketDebugRepository>()
     koin.get<UserSessionRepository>()
+    koin.get<PushRegistrationRepository>()
     koin.get<TutorialsRepository>()
     koin.get<PersistenceManager>()
     koin.get<SettingsRepository>()
@@ -182,6 +185,7 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
   single { GameNotificationCanceller {} }
   single<SoundLoader> { BundleSoundLoader }
   single<AnalysisEngine> { UnavailableAnalysisEngine }
+  single { PushTokenProvider { null } }
   single<AppLanguageSetting> {
     object : AppLanguageSetting {
       override val language = MutableStateFlow(AppLanguage.DEFAULT)

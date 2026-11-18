@@ -101,6 +101,7 @@ kotlin {
       implementation(project.dependencies.platform(libs.firebase.bom))
       implementation(libs.firebase.analytics)
       implementation(libs.firebase.crashlytics)
+      implementation(libs.firebase.messaging)
     }
 
     iosMain.dependencies {

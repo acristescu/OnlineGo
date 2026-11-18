@@ -13,8 +13,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
+
+private val PUSH_UNREGISTER_TIMEOUT = 3.seconds
 
 class UserSessionRepository(
   private val appCoroutineScope: CoroutineScope,
@@ -26,6 +30,7 @@ class UserSessionRepository(
   // Koin will throw a fit (at runtime)
   private val socketService: OGSWebSocketService by getKoin().inject()
   private val restService: OGSRestService by getKoin().inject()
+  private val pushRegistrationRepository: PushRegistrationRepository by getKoin().inject()
 
   private val _userId = MutableSharedFlow<Long?>(replay = 1)
   val userId: SharedFlow<Long?> = _userId.asSharedFlow()
@@ -77,7 +82,10 @@ class UserSessionRepository(
     CrashReporter.sendUnsentReports()
     uiConfig = null
     _loginStatus.tryEmit(LoginStatus.LoggedOut)
-    appDataEraser.clearAppData()
+    appCoroutineScope.launch {
+      withTimeoutOrNull(PUSH_UNREGISTER_TIMEOUT) { pushRegistrationRepository.unregister() }
+      appDataEraser.clearAppData()
+    }
   }
 
   suspend fun deleteAccount(password: String) {

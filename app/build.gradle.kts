@@ -10,6 +10,17 @@ plugins {
   alias(libs.plugins.screenshot)
 }
 
+val firebaseConfig = file("google-services.json")
+val placeholderFirebaseConfig = file("google-services.placeholder.json")
+val debugFirebaseConfig = file("src/debug/google-services.json")
+if (!firebaseConfig.exists()) {
+  if (!debugFirebaseConfig.exists()) placeholderFirebaseConfig.copyTo(debugFirebaseConfig)
+} else if (debugFirebaseConfig.exists() &&
+  debugFirebaseConfig.readText() == placeholderFirebaseConfig.readText()
+) {
+  debugFirebaseConfig.delete()
+}
+
 android {
   compileSdk {
     version = release(libs.versions.compileSdk.get().toInt()) {
@@ -120,6 +131,7 @@ dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.analytics)
   implementation(libs.firebase.crashlytics)
+  implementation(libs.firebase.messaging)
 
   // Google Play Services
   implementation(libs.play.review.ktx)
