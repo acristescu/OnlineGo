@@ -351,6 +351,7 @@
     <string name="settings_section_debug">Debug</string>
     <string name="settings_socket_debug">Socket Debug</string>
     <string name="settings_review_prompt">Skontrolovať prompt</string>
+    <string name="settings_test_notification">Test upozornenia</string>
     <string name="settings_build_version">Build číslo %1$d</string>
     <string name="settings_theme_system_default">Podľa systému</string>
     <string name="settings_theme_light">Svetlá</string>
@@ -436,7 +437,6 @@
         <item quantity="many">%1$d prehry</item>
         <item quantity="other">%1$d prehier</item>
     </plurals>
-    <string name="stats_no_ranked_games">Žiadne hodnotené hry v záznamoch</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1R</string>
