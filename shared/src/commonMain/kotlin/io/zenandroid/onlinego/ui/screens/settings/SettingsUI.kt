@@ -107,6 +107,7 @@ import io.zenandroid.onlinego.resources.settings_help_translate
 import io.zenandroid.onlinego.resources.settings_icon_content_description
 import io.zenandroid.onlinego.resources.settings_language
 import io.zenandroid.onlinego.resources.settings_language_catalan
+import io.zenandroid.onlinego.resources.settings_language_chinese
 import io.zenandroid.onlinego.resources.settings_language_dutch
 import io.zenandroid.onlinego.resources.settings_language_english
 import io.zenandroid.onlinego.resources.settings_language_french
@@ -788,4 +789,5 @@ private val AppLanguage.displayNameResId: StringResource
     AppLanguage.ROMANIAN -> Res.string.settings_language_romanian
     AppLanguage.PORTUGUESE -> Res.string.settings_language_portuguese
     AppLanguage.SLOVAK -> Res.string.settings_language_slovak
+    AppLanguage.CHINESE -> Res.string.settings_language_chinese
   }

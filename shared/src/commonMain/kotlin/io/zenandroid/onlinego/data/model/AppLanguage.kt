@@ -36,6 +36,7 @@ enum class AppLanguage(
   PORTUGUESE("pt", "pt", "🇵🇹"),
   ROMANIAN("ro", "ro", "🇷🇴"),
   SLOVAK("sk", "sk", "🇸🇰"),
+  CHINESE("zh", "zh", "🇨🇳"),
   ;
 
   companion object {

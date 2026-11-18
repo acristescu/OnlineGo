@@ -265,6 +265,7 @@
     <string name="whats_new_support_project">Support the project</string>
     <string-array name="whats_new_changelog" translatable="false">
         <item>⚡ Near-instant notifications! Sente now uses OGS's brand new push notification system, so when it's your move you'll know within seconds instead of waiting up to 15 minutes. A huge thank you to anoek for enabling this on OGS!</item>
+        <item>🇨🇳 Chinese is here! Sente is now available in Chinese (中文). You can pick it in Settings, or the app will use it automatically if your phone is set to Chinese. Thank you to our translators!</item>
     </string-array>
     <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
     <string name="settings_delete_account_wrong_password">Wrong password</string>
@@ -325,6 +326,7 @@
     <string name="settings_language_french" translatable="false">Français</string>
     <string name="settings_language_slovak" translatable="false">Slovenčina</string>
     <string name="settings_language_portuguese" translatable="false">Português</string>
+    <string name="settings_language_chinese" translatable="false">中文</string>
     <string name="settings_help_translate">Help translate Sente</string>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">System notifications</string>

@@ -40,7 +40,7 @@ android {
   }
 
   androidResources {
-    localeFilters += listOf("en", "ca", "de", "es", "fr", "nl", "pt", "ro", "sk")
+    localeFilters += listOf("en", "ca", "de", "es", "fr", "nl", "pt", "ro", "sk", "zh")
   }
 
   buildTypes {
