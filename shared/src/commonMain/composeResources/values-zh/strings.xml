@@ -656,6 +656,7 @@
     <string name="tutorial_advanced_title">进阶</string>
     <string name="tutorial_advanced_thefirstmoves_name">布局</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">到目前为止，我们都在专注于吃子。但是，在游戏开始的时候棋盘上并没有棋子。我们接下来会看看你最开始的几步棋下在哪里能有更大的赢面。\n\n首先，我们把棋盘分成3块区域。这些是角：</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">…… 这些是边……</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">…… 而这些是中腹。当然，这只是我们用来描述方位的名字，并没有具体的规则规定如何划分。</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">（现代认为的）围棋的核心是要比你的对手围上更多的空。你和你的对手轮流落子，于是最后落下的子是一样多的。因此，赢棋的一方是能更高效地使用自己棋子的人。\n\n在哪里能更高效地围空呢？是在角上，边上，还是在中腹？</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">下方的几片棋各自围上了正好9个空，因此各自有9目棋。然而，在角上的那片棋仅需6颗子，边上的要9颗，而中腹需要12颗！</string>
