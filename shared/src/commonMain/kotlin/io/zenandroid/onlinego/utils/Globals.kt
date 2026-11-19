@@ -206,6 +206,7 @@ fun computeTimeLeft(
     val now = serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     var timeLeft = 0L
+    var timeUntilTimeout: Long
     var period: ClockPeriod? = null
 
     if(playerTimeSimple != null) {
@@ -213,14 +214,17 @@ fun computeTimeLeft(
         timeLeft = if(playerTimeSimple == 0L) 0 else {
             playerTimeSimple - if (currentPlayer) now else baseTime
         }
+        timeUntilTimeout = timeLeft
     } else if (playerTime != null) {
         timeLeft = if(currentPlayer) {
             baseTime + (playerTime.thinking_time * 1000).toLong() - now
         } else {
             (playerTime.thinking_time * 1000).toLong()
         }
+        timeUntilTimeout = timeLeft
 
         if(playerTime.moves_left != null) {
+            timeUntilTimeout += ((playerTime.block_time ?: 0.0) * 1000).toLong()
 
             // Canadian timer
             if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
@@ -231,6 +235,7 @@ fun computeTimeLeft(
                 playerTime.moves_left
             )
         } else if(playerTime.periods != null) {
+            timeUntilTimeout += playerTime.periods * ((playerTime.period_time ?: 0.0) * 1000).toLong()
 
             // Byo Yomi timer
             var periodsLeft = playerTime.periods
@@ -260,13 +265,20 @@ fun computeTimeLeft(
         return PlayerClock(timeLeft = Long.MAX_VALUE)
     }
 
-    return PlayerClock(timeLeft = timeLeft, period = period)
+    return PlayerClock(
+        timeLeft = timeLeft,
+        period = period,
+        timeUntilTimeout = timeUntilTimeout,
+    )
 }
 
 data class PlayerClock(
     val timeLeft: Long,
     val period: ClockPeriod? = null,
-)
+    val timeUntilTimeout: Long = timeLeft,
+) {
+    val timeoutWarning: Boolean get() = timeUntilTimeout in 1..10_000
+}
 
 sealed interface ClockPeriod {
     data class Canadian(val blockMillis: Long, val movesLeft: Long) : ClockPeriod

@@ -62,6 +62,7 @@ fun PlayerCard(
   onGameDetailsClicked: () -> Unit,
   modifier: Modifier = Modifier,
   localAvatarRes: DrawableResource? = null,
+  timerWarning: Boolean = false,
 ) {
   val alpha = if (timerFaded) .6f else 1f
   player?.let {
@@ -156,7 +157,7 @@ fun PlayerCard(
       }
       if (timerShown) {
         Timer(
-          minSize, maxSize, alpha, timerPercent, timerMain, timerExtra,
+          minSize, maxSize, alpha, timerPercent, timerMain, timerExtra, timerWarning,
           modifier = Modifier.clickable { onGameDetailsClicked() }
         )
       }
@@ -174,6 +175,7 @@ private fun Timer(
   timerPercent: Int,
   timerMain: String,
   timerExtra: String,
+  timerWarning: Boolean,
   modifier: Modifier = Modifier,
 ) {
   Column(
@@ -184,7 +186,7 @@ private fun Timer(
       .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
       .fillMaxHeight(1f)
   ) {
-    val color = MaterialTheme.colorScheme.onSurface
+    val color = if (timerWarning) Color.Red else MaterialTheme.colorScheme.onSurface
     Canvas(
       modifier = Modifier
         .size(0.dp)

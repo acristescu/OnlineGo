@@ -33,6 +33,7 @@ class SettingsRepository(
     private val SHOW_RANKS = booleanPreferencesKey("show_ranks")
     private val SHOW_COORDINATES = booleanPreferencesKey("show_coordinates")
     private val SOUND = booleanPreferencesKey("sound")
+    private val CLOCK_SOUND = booleanPreferencesKey("clock_sound")
     private val GRAPH_BY_GAMES = booleanPreferencesKey("graph_by_games")
 
     private val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
@@ -64,6 +65,7 @@ class SettingsRepository(
         showRanks = prefs[SHOW_RANKS] ?: true,
         showCoordinates = prefs[SHOW_COORDINATES] ?: false,
         soundEnabled = prefs[SOUND] ?: true,
+        clockSoundEnabled = prefs[CLOCK_SOUND] ?: true,
         graphByGames = prefs[GRAPH_BY_GAMES] ?: false
       )
     }
@@ -105,6 +107,13 @@ class SettingsRepository(
 
   suspend fun setSound(value: Boolean) {
     dataStore.edit { it[SOUND] = value }
+  }
+
+  val clockSoundFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[CLOCK_SOUND] ?: true }
+
+  suspend fun setClockSound(value: Boolean) {
+    dataStore.edit { it[CLOCK_SOUND] = value }
   }
 
   val graphByGamesFlow: Flow<Boolean> = dataStore.data

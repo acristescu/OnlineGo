@@ -13,9 +13,17 @@ import io.zenandroid.onlinego.ui.composables.SoundPlayer
 import org.koin.compose.koinInject
 
 @Composable
-internal fun rememberStoneSound(loader: SoundLoader = koinInject()): () -> Unit {
+internal fun rememberStoneSound(loader: SoundLoader = koinInject()): () -> Unit =
+  rememberGameSound("files/stone.wav", loader)
+
+@Composable
+internal fun rememberClockSound(loader: SoundLoader = koinInject()): () -> Unit =
+  rememberGameSound("files/clock_tick.wav", loader)
+
+@Composable
+private fun rememberGameSound(resource: String, loader: SoundLoader): () -> Unit {
   var player by remember { mutableStateOf<SoundPlayer?>(null) }
-  LaunchedEffect(loader) { player = loader.load(Res.getUri("files/stone.wav")) }
+  LaunchedEffect(loader, resource) { player = loader.load(Res.getUri(resource)) }
   DisposableEffect(player) {
     val current = player
     onDispose { current?.release() }
