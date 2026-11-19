@@ -24,7 +24,6 @@ import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.mygames_paused
 import io.zenandroid.onlinego.resources.unknown
-import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.composables.clockText
@@ -57,14 +56,9 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
             vertical = 16.dp,
             horizontal = 24.dp
           )) {
-            Board(
-                boardWidth = game.width,
-                boardHeight = game.height,
-                position = game.position,
-                drawCoordinates = false,
-                interactive = false,
-                fadeInLastMove = false,
-                fadeOutRemovedStones = false,
+            GameBoardPreview(
+                game = game,
+                drawShadow = true,
                 modifier = Modifier.clip(MaterialTheme.shapes.large)
                     .run {
                       if (isLandscape()) {

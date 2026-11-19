@@ -30,7 +30,6 @@ import io.zenandroid.onlinego.resources.mygames_outcome_lost
 import io.zenandroid.onlinego.resources.mygames_outcome_white_won
 import io.zenandroid.onlinego.resources.mygames_outcome_won
 import io.zenandroid.onlinego.resources.unknown
-import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import org.jetbrains.compose.resources.stringResource
 
@@ -44,7 +43,7 @@ fun HistoricGameLazyRow(
   onAction: (Action) -> Unit
 ) {
   LazyRow {
-    items(games) { game ->
+    items(games, key = { it.id }) { game ->
       SenteCard(
         modifier = Modifier
           .size(width = 125.dp, height = 140.dp)
@@ -57,15 +56,8 @@ fun HistoricGameLazyRow(
             }
             .size(width = 125.dp, height = 140.dp)
         ) {
-          Board(
-            boardWidth = game.width,
-            boardHeight = game.height,
-            position = game.position,
-            drawCoordinates = false,
-            interactive = false,
-            drawShadow = false,
-            fadeInLastMove = false,
-            fadeOutRemovedStones = false,
+          GameBoardPreview(
+            game = game,
             modifier = Modifier
               .padding(horizontal = 15.dp, vertical = 10.dp)
               .clip(MaterialTheme.shapes.small)

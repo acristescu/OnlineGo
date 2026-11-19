@@ -24,7 +24,6 @@ import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.mygames_paused
 import io.zenandroid.onlinego.resources.unknown
-import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.composables.clockText
@@ -52,15 +51,8 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
       modifier = Modifier
         .fillMaxWidth()
         .clickable { onAction(Action.GameSelected(game)) }) {
-      Board(
-        boardWidth = game.width,
-        boardHeight = game.height,
-        position = game.position,
-        drawCoordinates = false,
-        interactive = false,
-        drawShadow = false,
-        fadeInLastMove = false,
-        fadeOutRemovedStones = false,
+      GameBoardPreview(
+        game = game,
         modifier = Modifier
           .align(Alignment.CenterVertically)
           .padding(horizontal = 10.dp, vertical = 10.dp)
