@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.model.ogs.Warning
+import io.zenandroid.onlinego.data.ogs.ConnectionStatus
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.httpErrorBody
@@ -22,6 +23,7 @@ import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.LoginStatus
+import io.zenandroid.onlinego.data.repositories.GameSyncState
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -163,8 +165,13 @@ class MyGamesViewModel(
     }
 
     viewModelScope.launch {
-      socketService.connectionState.collect { online ->
-        _state.update { it.copy(online = online) }
+      socketService.connectionStatus.collect { status ->
+        _state.update { it.copy(online = status == ConnectionStatus.Connected, connectionStatus = status) }
+      }
+    }
+    viewModelScope.launch {
+      activeGamesRepository.syncState.collect { syncState ->
+        _state.update { it.copy(gameSyncState = syncState) }
       }
     }
   }
@@ -599,6 +606,8 @@ data class MyGamesState(
   val tutorialVisible: Boolean = false,
   val tutorialTitle: String? = null,
   val online: Boolean = true,
+  val connectionStatus: ConnectionStatus = ConnectionStatus.Disconnected,
+  val gameSyncState: GameSyncState = GameSyncState(),
   val challengeDetailsStatus: ChallengeDialogStatus? = null,
   val warning: Warning? = null,
   val hasReceivedActiveGames: Boolean = false,
