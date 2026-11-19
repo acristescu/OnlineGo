@@ -21,6 +21,7 @@ import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.microsToISODateTime
+import io.zenandroid.onlinego.utils.SingleFlight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +44,7 @@ class OGSRestService(
   private val applicationScope: CoroutineScope,
 ) {
   private var ebi: String? = null
+  private val uiConfigRefresh = SingleFlight<Unit>()
 
   init {
     applicationScope.launch {
@@ -61,7 +63,7 @@ class OGSRestService(
     return newEbi
   }
 
-  suspend fun fetchUIConfig() {
+  suspend fun fetchUIConfig() = uiConfigRefresh.run {
     val config = restApi.uiConfig()
     userSessionRepository.storeUIConfig(config)
   }

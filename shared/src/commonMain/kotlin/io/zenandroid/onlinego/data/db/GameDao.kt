@@ -140,17 +140,18 @@ abstract class GameDao {
         for(oldGame in existingGames) {
             val updatedGame = games.find { it.id == oldGame.id }
             updatedGame?.let {
-                updatedGames.add(it.copy(
+                val mergedGame = it.copy(
                     blackPlayer = if(it.blackPlayer.country == null) oldGame.blackPlayer else it.blackPlayer,
                     whitePlayer = if(it.whitePlayer.country == null) oldGame.whitePlayer else it.whitePlayer,
                     moves = if(it.moves.isNullOrEmpty()) oldGame.moves else it.moves,
                     undoRequested = if(oldGame.undoRequested != null && it.undoRequested == null && oldGame.moves == it.moves) oldGame.undoRequested else it.undoRequested
-                ))
+                )
+                if (mergedGame != oldGame) updatedGames.add(mergedGame)
             }
         }
 
-      Logger.i("Updating ${existingGames.size} games out of ${games.size}", tag = "GameDao")
-        updateGames(updatedGames)
+      Logger.i("Updating ${updatedGames.size} games out of ${games.size}", tag = "GameDao")
+        if (updatedGames.isNotEmpty()) updateGames(updatedGames)
     }
 
     @Transaction

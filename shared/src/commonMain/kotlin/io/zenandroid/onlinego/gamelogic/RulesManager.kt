@@ -32,6 +32,8 @@ object RulesManager {
     val white_scoring_positions: String?,
     val black_scoring_positions: String?,
     val computeTerritory: Boolean,
+    val komi: Float?,
+    val scoreStones: Boolean?,
   )
 
   private fun getCacheKey(
@@ -51,6 +53,8 @@ object RulesManager {
       white_scoring_positions = game.whiteScore?.scoring_positions,
       black_scoring_positions = game.blackScore?.scoring_positions,
       computeTerritory = computeTerritory,
+      komi = game.komi,
+      scoreStones = game.scoreStones,
     )
   }
 
@@ -92,10 +96,9 @@ object RulesManager {
     variation: Variation? = null
   ): Position {
     val actualMoves = when {
+      variation == null && limit >= (game.moves?.size ?: 0) -> game.moves
       variation == null || limit < variation.rootMoveNo -> game.moves?.take(limit)
-        ?.map { Cell(it.x, it.y) }
-
-      else -> game.moves?.take(variation.rootMoveNo)?.map { Cell(it.x, it.y) }
+      else -> game.moves?.take(variation.rootMoveNo)
         ?.plus(variation.moves.take(limit - variation.rootMoveNo))
     } ?: emptyList()
 
