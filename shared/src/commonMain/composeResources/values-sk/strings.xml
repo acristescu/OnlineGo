@@ -327,6 +327,7 @@
     <string name="notification_channel_your_turn">Váš ťah</string>
     <string name="notification_channel_challenges">Výzvy</string>
     <string name="notification_channel_logout">Odhlásenie</string>
+    <string name="notification_channel_other">Ostatné upozornenia</string>
     <string name="settings_become_a_supporter">Staňte sa podporovateľom</string>
     <string name="settings_become_a_supporter_description">Staňte sa podporovateľom</string>
     <string name="settings_section_language">Jazyk</string>
