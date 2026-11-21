@@ -145,7 +145,6 @@
     <string name="game_button_next_game">Следующая игра</string>
     <string name="game_button_undo">Отмена</string>
     <string name="game_button_exit_analysis">Выйти из анализа</string>
-    <string name="game_button_estimate">Russia</string>
     <string name="game_button_return">Вернуться</string>
     <string name="game_button_previous">Назад</string>
     <string name="game_button_next">Вперед</string>
